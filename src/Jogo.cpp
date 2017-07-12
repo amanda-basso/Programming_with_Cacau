@@ -79,95 +79,15 @@ void Jogo::desenharVida(sf::RenderWindow &App){
 /* função desenha pilha */
 void Jogo::desenhaPilhaObjetos(sf::RenderWindow &App){
 
-	/* pilha auxiliar para desenhar os objetos */
-	Pilha<int> paux;
-	int aux;
-
-    this->h = ALTURA_INICIAL; /* o tamanho inicial é sempre o mesmo */
-
-	/* o personagem é desenhado primeiro */
-	this->jogador.setTexture(this->imagem_jogador[i++ % 4]);
-	this->jogador.setPosition(posx, posy);
-    App.draw(this->jogador);
-
-	while (!this->pilha.EstaVazia()) {
-		pilha.Retira(aux);
-		paux.Insere(aux);
-	}
-
-	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
-	while (!paux.EstaVazia()) {
-		paux.Retira(aux);
-		/* inserimos o elemento de volta na stack */
-		pilha.Insere(aux);
-		objeto.setTexture(imagem_objeto[aux]);
-		objeto.setPosition(posx + float(LARGURA_ITEM/2), posy + this->h);
-		this->h -= 64;
-
-        /* desenha o objeto */
-        App.draw(this->objeto);
-    }
-
 }
 
 /*Função que faz o objeto "cair*/
 void Jogo::lancarObjeto(sf::RenderWindow &App){
 
-    //começo a jogar um próximo objeto
-    if(this->objetoLancamento == -1){
-        //escolho um objeto aleatório
-        this->objetoLancamento = rand()%4;
-        this->lancamento.setTexture(this->imagem_objeto[this->objetoLancamento]);
-        //escolho uma posicao aleatória em X de 0 até 500
-        this->lancamento.setPosition(rand()%500, 0);
-    }
 }
 
 /*Função que verifica se a bruxinha acertou o objeto*/
 void Jogo::colisao(sf::RenderWindow &App){
-
-    //obtenho a posição x e y do lançamento
-    int posicaoY = this->lancamento.getPosition().y;
-    int posicaoX = this->lancamento.getPosition().x;
-
-    //se o objeto não chegou no mesmo y da bruxinha
-    if(perdeu || posicaoY <= this->alturaTopo){
-        //vou avançando com o sprite
-        posicaoY = posicaoY + 4;
-
-        this->lancamento.setPosition(posicaoX, posicaoY);
-        //só exibo na tela se o item estiver em movimento
-        App.draw(this->lancamento);
-
-        //se o desenho chegou até o final da tela
-        if(posicaoY >= 600){
-            this->nroVidas--;
-            this->perdeu = false;
-            //indico que pode haver um novo lancamento
-            this->objetoLancamento = -1;
-        }
-
-    } else {
-
-        //houver algum desenho dentro do lançamento
-        if(this->objetoLancamento != -1){
-
-            //se a posição está correta
-            if(fabs(this->posx + (LARGURA_ITEM/2) - posicaoX) < LARGURA_ITEM){
-                this->placar+= SCORE_ACERTO;
-                this->pilha.Insere(this->objetoLancamento);
-                this->alturaTopo -= 69;
-                this->perdeu = false;
-
-                //indico que pode haver um novo lancamento
-                this->objetoLancamento = -1;
-            } else{
-                //se o jogador deixou o item cair
-                this->perdeu = true;
-            }
-        }
-
-    }
 
 }
 
@@ -216,7 +136,7 @@ int Jogo::Run(sf::RenderWindow &App) {
 	//toco uma música de fundo do jogo
 	sf::Music MusicaFundo;
 
-	if (!MusicaFundo.openFromFile("bin/Release/files/musicas/fundo.ogg"))
+	if (!MusicaFundo.openFromFile("bin/Release/files/sounds/menu/the_field_of_dreams.ogg"))
 	      std::cerr << "Error loading menu.ogg" << std::endl;
 
 	MusicaFundo.setVolume(50); //defino um volume mais baixo que o normal para a música não ser cansativa
