@@ -1,18 +1,17 @@
 /*
  *
- * Cacaumming √© um jogo desenvolvido pelos alunos da UFSCAR com o prop√≥sito de
+ * Cacaumming È um jogo desenvolvido pelos alunos da UFSCAR com o propÛsito de
  * estudar o funcionamento da estrutura de lista cadastral.
  *
- * O objetivo do jogo √© ensinar l√≥gica de programa√ß√£o para o jogador de uma forma interativa
- * para isso o jogador deve guiar a cacau at√© o osso coletando os itens dispostos pelo cen√°rio.
+ * O objetivo do jogo È ensinar lÛgica de programaÁ„o para o jogador de uma forma interativa
+ * para isso o jogador deve guiar a cacau atÈ o osso coletando os itens dispostos pelo cen·rio.
  *
  * @authors:
  *  + Amanda Basso RA: 727331
- *  + B√°rbara Olivieri RA: 727334
+ *  + B·rbara Olivieri RA: 727334
  *  + Juan Santos RA: 594946
  *  + Matheus Vrech RA: 727349
  *
- */
 
 
 /*
@@ -20,50 +19,56 @@
 ***********************************************************************/
 #include <iostream>
 #include <SFML/Graphics.hpp>
-//#include <ctime>
+#include <ctime>
 
-//#include "Intro.hpp"
-#include "include/Menu.hpp"
-//#include "Game.hpp"
-//#include "Win.hpp"
-//#include "Lose.hpp"
+#include "AnimatedSprite.h"
+#include "Jogo.h"
+#include "Menu.h"
+#include "Instrucao.h"
+#include "Introducao.h"
+#include "Vitoria.h"
 
 using namespace std;
 
 /*
  *	Main
  ***********************************************************************/
-int main(int argc, char *argv[])
-{
-    //srand(time(NULL));
+int main(int argc, char** argv) {
 
-    /* Game state pointer vector */
-    std::vector<Screens *> screen;
-    int curr_state = 0;
+	srand(time(NULL));
 
-    sf::RenderWindow App(sf::VideoMode(800, 600), "Cacaumming");
-    App.setFramerateLimit(30);
+	//vetor de ponteiros de telas
+	std::vector<Telas*> listaTelas;
+	//int telaAtual = INTRO;
+	int telaAtual = MENU;
 
-    /* Set game states */
-    //Intro a;
-    //screen.push_back(&a);
+	sf::RenderWindow App(sf::VideoMode(800, 600), "Cacaumming");
+	App.setFramerateLimit(30);
 
-    Menu b;
-    screen.push_back(&b);
+	//opÁ„o 0
+	Introducao a;
+	listaTelas.push_back(&a);
 
-    //	Game c;
-    //screen.push_back(&c);
+    //opcao 1
+	Menu b;
+	listaTelas.push_back(&b);
 
-    //Win d;
-    //screen.push_back(&d);
+	//opcao 2
+	Jogo c;
+	listaTelas.push_back(&c);
 
-    //   Loose e;
-    //	screen.push_back(&e);
+	//opcao 3
+	Instrucao d;
+	listaTelas.push_back(&d);
 
-    /* Main loop */
-    while (curr_state >= 0)
-    curr_state = screen[curr_state]->Run(App);
+	//opcao 4
+	Vitoria e;
+	listaTelas.push_back(&e);
 
+	//Main loop
+	while (telaAtual >= 0){
+        telaAtual = listaTelas[telaAtual]->Run(App);
+	}
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

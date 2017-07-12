@@ -1,74 +1,67 @@
-#include "../include/Menu.hpp"
-
-using namespace std;
+#include "Menu.h"
 
 Menu::Menu() {
-	playing = false;
+	this->playing = false;
+
+    /* Load Menu sound */
+    if (!this->sound.openFromFile("bin/Release/files/sounds/menu/the_field_of_dreams.ogg")) {
+      std::cerr << "Error loading menu sound" << std::endl;
+    }
+
+	//se achar a imagem de fundo
+    if (this->fundoJogo.loadFromFile("bin/Release/files/images/menu/background.png")){
+        std::cerr << "Error loading menu image" << std::endl;
+    }
+
+    //********** início movimento no fundo **********
+
+    this->fundoJogoMovimento.setSpriteSheet(this->fundoJogo);
+    this->fundoJogoMovimento.addFrame(sf::IntRect(0, 0, 800, 600));
+    this->fundoJogoMovimento.addFrame(sf::IntRect(800, 0, 800, 600));
+    this->fundoJogoMovimento.addFrame(sf::IntRect(0, 600, 800, 600));
+    this->fundoJogoMovimento.addFrame(sf::IntRect(800, 600, 800, 600));
+
+    this->background.setPosition(0,0);
+    //********** fim movimento fundo **********
+
+    /* Load Menu font text */
+    if (!this->font.loadFromFile("bin/Release/files/fonts/menu/crackman_front.ttf")) {
+        std::cerr << "Error loading menu font text" << std::endl;
+    }
+
+    //textos do menu
+    this->play.setFont(this->font);
+    this->play.setString("Start");
+    this->back.setFont(this->font);
+    this->back.setString("Continue");
+    this->instrucoes.setFont(this->font);
+    this->instrucoes.setString("Instructions");
+    this->introducao.setFont(this->font);
+    this->introducao.setString("Back to Intro");
+    this->quit.setFont(this->font);
+    this->quit.setString("Exit");
 }
 
 int Menu::Run(sf::RenderWindow &App) {
 
-    /* variables */
+    //evento do teclado
     sf::Event event;
-    sf::Texture texture[3];
-    sf::Sprite sprite;
-    sf::Font font;
-    sf::Music sound;
-    sf::Text play;
-    sf::Text rules;
-    sf::Text intro;
-    sf::Text back;
-    sf::Text quit;
-    int ct;
 
+    //opção atual do menu
     int opt = 0;
-    bool running = true;
 
-    /* Load Menu background */
-    if (!texture[0].loadFromFile("assets/images/menu/background/background0.png") || !texture[1].loadFromFile("assets/images/menu/background/background1.png") ||
-        !texture[2].loadFromFile("assets/images/menu/background/background2.png") || !texture[3].loadFromFile("assets/images/menu/background/background3.png")) {
-        std::cerr << "Error loading menu background" << std::endl;
-        return EXIT_FAILURE;
-    }
+    this->sound.setLoop(true); /* sound loop */
+    this->sound.play(); /* play music */
 
+	while (true) {
 
-    ct = 0;
-    /* Set background as texture */
-    sprite.setTexture(texture[ct]);
-    /* Sprite.setColor(sf::Color(255, 255, 255, alpha)); */
+        //****** início do movimento *******
+        sf::Time frameTime = this->frameClock.restart();
+        this->background.play(this->fundoJogoMovimento);
 
-    /* Load Menu font text */
-    if (!font.loadFromFile("assets/fonts/menu/crackman_front.ttf")) {
-        std::cerr << "Error loading menu font text" << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    /* Load Menu sound */
-    if (!sound.openFromFile("assets/sounds/menu/the_field_of_dreams.ogg")) {
-      std::cerr << "Error loading menu sound" << std::endl;
-      return EXIT_FAILURE;
-    }
-
-    sound.setLoop(true); /* sound loop */
-    sound.play(); /* play music */
-
-    play.setFont(font);
-    play.setString("Start");
-
-    rules.setFont(font);
-    rules.setString("Instructions");
-
-    intro.setFont(font);
-    intro.setString("Back to Intro");
-
-    back.setFont(font);
-    back.setString("Continue");
-
-    quit.setFont(font);
-    quit.setString("Exit");
-
-	while (running) {
-        sprite.setTexture(texture[ct < 3? ct++ : ct = 0]);
+        // muda a imagem
+        this->background.update(frameTime);
+        //****** fim do movimento ******
 
 		/* Parse Events */
 		while (App.pollEvent(event)) {
@@ -81,129 +74,149 @@ int Menu::Run(sf::RenderWindow &App) {
 			if (event.type == sf::Event::KeyPressed) {
 
 				switch (event.key.code) {
+
+				    //se for a tecla pra cima
 					case sf::Keyboard::Up:
-						opt = (opt > 0)? --opt : opt = 3;
-					break;
+
+                            opt = (opt > 0)? --opt : opt = 3;
+                            //se estiverem jogando (estado pausa)
+                            //não haverá a opção intro (opcao 1)
+                            if(this->playing && opt == 1){
+                                opt--;
+                            }
+
+                        break;
+
+                    //se for a tecla pra baixo
 					case sf::Keyboard::Down:
-						opt = (opt < 3)? ++opt : opt = 0;
-					break;
+
+                        opt = (opt < 3)? ++opt : opt = 0;
+                        //se estiverem jogando (estado pausa)
+                        //não haverá a opção intro (opcao 1)
+                        if(this->playing && opt == 1){
+                            opt++;
+                        }
+                        break;
+
+                    //se for a tecla esc
 					case sf::Keyboard::Escape:
 						return -1;
-					break;
+                        break;
+
+                    //se for a tecla enter
 					case sf::Keyboard::Return:
 						switch(opt) {
 							case 0:
-                                playing = true;
-                                //return 2;
-							break;
+							    //jogo
+                                this->playing = true;
+                                return GAME;
 							case 1:
-								//return 3;
-							break;
+							    //tela de instruções
+								return INSTRUCAO;
 							case 2:
-							  //return 0;
-							break;
+							    //tela de introdução
+                               return INTRO;
 							case 3:
-								return -1;
-							break;
+							    //sair
+								return SAIR;
 							default:
-								return 1;
-							break;
+							    //não existe este caso
+								return SAIR;
 						}
-					break;
+                        break;
+
 					default:
-					break;
+                        break;
 				}
-
 			}
-
 		}
 
 		switch(opt) {
 			case 0:
-				if (!playing) {
-					play.setColor(sf::Color(253, 206, 220, 255));
-					play.setCharacterSize(100);
-					play.setPosition({250.f, 80.f});
-					rules.setColor(sf::Color(162, 132, 140, 255));
-					rules.setCharacterSize(60);
-					rules.setPosition({170.f, 200.f});
-					intro.setColor(sf::Color(162, 132, 140, 255));
-					intro.setCharacterSize(60);
-					intro.setPosition({170.f, 300.f});
-					back.setColor(sf::Color(162, 132, 140, 255));
-					back.setCharacterSize(60);
-					back.setPosition({310.f, 300.f});
-					quit.setColor(sf::Color(162, 132, 140, 255));
-					quit.setCharacterSize(60);
-					quit.setPosition({335.f, 400.f});
-				} else {
-					play.setColor(sf::Color(162, 132, 140, 255));
-					play.setCharacterSize(60);
-					play.setPosition({315.f, 100.f});
-					rules.setColor(sf::Color(162, 132, 140, 255));
-					rules.setCharacterSize(60);
-					rules.setPosition({170.f, 200.f});
-					intro.setColor(sf::Color(162, 132, 140, 255));
-					intro.setCharacterSize(60);
-					intro.setPosition({170.f, 300.f});
-					back.setColor(sf::Color(162, 132, 140, 255));
-					back.setCharacterSize(95);
-					back.setPosition({245.f, 180.f});
-					quit.setColor(sf::Color(162, 132, 140, 255));
-					quit.setCharacterSize(60);
-					quit.setPosition({335.f, 400.f});
-				}
+
+                this->play.setColor(sf::Color(253, 206, 220, 255));
+                this->play.setCharacterSize(110);
+                this->play.setPosition({240.f, 60.f});
+
+                this->back.setColor(sf::Color(253, 206, 220, 255));
+                this->back.setCharacterSize(110);
+                this->back.setPosition(100,150);
+
+                this->introducao.setColor(sf::Color(162, 132, 140, 255));
+                this->introducao.setCharacterSize(60);
+                this->introducao.setPosition({170.f, 200.f});
+
+                this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
+                this->instrucoes.setCharacterSize(60);
+                this->instrucoes.setPosition({170.f, 300.f});
+
+                this->quit.setColor(sf::Color(162, 132, 140, 255));
+                this->quit.setCharacterSize(60);
+                this->quit.setPosition({335.f, 400.f});
+
 			break;
 			case 1:
-				play.setColor(sf::Color(162, 132, 140, 255));
-				play.setCharacterSize(60);
-				play.setPosition({315.f, 100.f});
-				rules.setColor(sf::Color(253, 206, 220, 255));
-				rules.setCharacterSize(85);
-				rules.setPosition({105.f, 180.f});
-				intro.setColor(sf::Color(162, 132, 140, 255));
-				intro.setCharacterSize(60);
-				intro.setPosition({170.f, 300.f});
-				back.setColor(sf::Color(162, 132, 140, 255));
-				back.setCharacterSize(60);
-				back.setPosition({310.f, 300.f});
-				quit.setColor(sf::Color(162, 132, 140, 255));
-				quit.setCharacterSize(60);
-				quit.setPosition({335.f, 400.f});
+				this->play.setColor(sf::Color(162, 132, 140, 255));
+				this->play.setCharacterSize(60);
+				this->play.setPosition({315.f, 100.f});
+
+				this->back.setColor(sf::Color(162, 132, 140, 255));
+				this->back.setCharacterSize(60);
+				this->back.setPosition({240.f, 180.f});
+
+				this->introducao.setColor(sf::Color(253, 206, 220, 255));
+				this->introducao.setCharacterSize(85);
+				this->introducao.setPosition({70.f, 180.f});
+
+				this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
+				this->instrucoes.setCharacterSize(60);
+				this->instrucoes.setPosition({170.f, 300.f});
+
+				this->quit.setColor(sf::Color(162, 132, 140, 255));
+				this->quit.setCharacterSize(60);
+				this->quit.setPosition({335.f, 400.f});
 			break;
 			case 2:
-                play.setColor(sf::Color(162, 132, 140, 255));
-                play.setCharacterSize(60);
-                play.setPosition({315.f, 100.f});
-                rules.setColor(sf::Color(162, 132, 140, 255));
-                rules.setCharacterSize(60);
-                rules.setPosition({170.f, 200.f});
-                intro.setColor(sf::Color(253, 206, 220, 255));
-                intro.setCharacterSize(85);
-                intro.setPosition({90.f, 280.f});
-                back.setColor(sf::Color(162, 132, 140, 255));
-                back.setCharacterSize(60);
-                back.setPosition({310.f, 300.f});
-                quit.setColor(sf::Color(162, 132, 140, 255));
-                quit.setCharacterSize(60);
-                quit.setPosition({335.f, 400.f});
+                this->play.setColor(sf::Color(162, 132, 140, 255));
+                this->play.setCharacterSize(60);
+                this->play.setPosition({315.f, 100.f});
+
+                this->back.setColor(sf::Color(162, 132, 140, 255));
+                this->back.setCharacterSize(60);
+                this->back.setPosition({240.f, 200.f});
+
+                this->introducao.setColor(sf::Color(162, 132, 140, 255));
+                this->introducao.setCharacterSize(60);
+                this->introducao.setPosition({170.f, 200.f});
+
+                this->instrucoes.setColor(sf::Color(253, 206, 220, 255));
+                this->instrucoes.setCharacterSize(85);
+                this->instrucoes.setPosition({90.f, 280.f});
+
+                this->quit.setColor(sf::Color(162, 132, 140, 255));
+                this->quit.setCharacterSize(60);
+                this->quit.setPosition({335.f, 400.f});
 			break;
 			case 3:
-				play.setColor(sf::Color(162, 132, 140, 255));
-				play.setCharacterSize(60);
-				play.setPosition({315.f, 100.f});
-				rules.setColor(sf::Color(162, 132, 140, 255));
-				rules.setCharacterSize(60);
-				rules.setPosition({170.f, 200.f});
-				intro.setColor(sf::Color(162, 132, 140, 255));
-				intro.setCharacterSize(60);
-				intro.setPosition({170.f, 300.f});
-				back.setColor(sf::Color(162, 132, 140, 255));
-				back.setCharacterSize(60);
-				back.setPosition({310.f, 300.f});
-				quit.setColor(sf::Color(253, 206, 220, 255));
-				quit.setCharacterSize(100);
-				quit.setPosition({285.f, 380.f});
+				this->play.setColor(sf::Color(162, 132, 140, 255));
+				this->play.setCharacterSize(60);
+				this->play.setPosition({315.f, 100.f});
+
+				this->back.setColor(sf::Color(162, 132, 140, 255));
+				this->back.setCharacterSize(60);
+				this->back.setPosition({240.f, 200.f});
+
+				this->introducao.setColor(sf::Color(162, 132, 140, 255));
+				this->introducao.setCharacterSize(60);
+				this->introducao.setPosition({170.f, 200.f});
+
+				this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
+				this->instrucoes.setCharacterSize(60);
+				this->instrucoes.setPosition({170.f, 300.f});
+
+				this->quit.setColor(sf::Color(253, 206, 220, 255));
+				this->quit.setCharacterSize(85);
+				this->quit.setPosition({285.f, 380.f});
 			break;
 			default:
 			break;
@@ -213,21 +226,22 @@ int Menu::Run(sf::RenderWindow &App) {
 		App.clear();
 
 		/* Draw screen */
-		App.draw(sprite);
+		App.draw(this->background);
 
 		/* Display menu options */
-		if (playing) {
-			App.draw(back);
+		if (this->playing) {
+			App.draw(this->back);
 		} else {
-			App.draw(play);
-			App.draw(intro);
+			App.draw(this->play);
+			App.draw(this->introducao);
 		}
-		App.draw(rules);
-		App.draw(quit);
+
+		App.draw(this->instrucoes);
+		App.draw(this->quit);
 
 		/* Display menu */
 		App.display();
 	}
 
-	return EXIT_FAILURE;
+	return SAIR;
 }
