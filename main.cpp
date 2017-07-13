@@ -25,10 +25,25 @@
 #include "Jogo.h"
 #include "Menu.h"
 #include "Instrucao.h"
-#include "Introducao.h"
 #include "Vitoria.h"
 
+#include "Lista.h"
+#include "Node.h"
+
+//#include "../src/Lista.cpp"
+
+
 using namespace std;
+
+template <class T>
+void exibirLista(Lista<T> lista){
+    lista.posicionarNoPrimeiro();
+    Node<T> aux;
+
+    while(lista.getProximo(aux)){
+        cout << aux << endl;
+    }
+}
 
 /*
  *	Main
@@ -39,15 +54,10 @@ int main(int argc, char** argv) {
 
 	//vetor de ponteiros de telas
 	std::vector<Telas*> listaTelas;
-	//int telaAtual = INTRO;
 	int telaAtual = MENU;
 
 	sf::RenderWindow App(sf::VideoMode(800, 600), "Cacaumming");
 	App.setFramerateLimit(30);
-
-	//opção 0
-	Introducao a;
-	listaTelas.push_back(&a);
 
     //opcao 1
 	Menu b;

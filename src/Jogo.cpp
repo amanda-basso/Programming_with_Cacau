@@ -1,9 +1,4 @@
 #include "Jogo.h"
-#define CONCRETO 0
-#define GRAMA 1
-#define PEDRA 2
-#define AGUA 3
-#define PAREDE 4
 
 Jogo::Jogo(int fase) {
 
@@ -66,14 +61,16 @@ Jogo::Jogo(int fase) {
 
 
     /************* BOTOES ***************/
-    if (!this->controle[0].loadFromFile("bin/Release/files/images/jogo/seguir2.png")
-        ||!this->controle[1].loadFromFile("bin/Release/files/images/jogo/horario2.png")
-        ||!this->controle[2].loadFromFile("bin/Release/files/images/jogo/antihorario2.png")
-        ||!this->controle[3].loadFromFile("bin/Release/files/images/jogo/f2.png")
-        ||!this->controle[4].loadFromFile("bin/Release/files/images/jogo/g2.png")
-        ||!this->controle[5].loadFromFile("bin/Release/files/images/jogo/pegar2.jpg")
+
+    if (!this->controle[SEGUIR].loadFromFile("bin/Release/files/images/jogo/seguir2.png")
+        ||!this->controle[HORARIO].loadFromFile("bin/Release/files/images/jogo/horario2.png")
+        ||!this->controle[ANTIHORARIO].loadFromFile("bin/Release/files/images/jogo/antihorario2.png")
+        ||!this->controle[FUNCAO1].loadFromFile("bin/Release/files/images/jogo/f2.png")
+        ||!this->controle[FUNCAO2].loadFromFile("bin/Release/files/images/jogo/g2.png")
+        ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar2.jpg")
+        ||!this->controle[LIMPAR].loadFromFile("bin/Release/files/images/jogo/limpar.jpg")
         ){
-        std::cout << "Can't find the image" << std::endl;
+        std::cout << "Can't find the ITEM" << std::endl;
     }
 
     this->seguir.setPosition(630, 30);
@@ -93,6 +90,9 @@ Jogo::Jogo(int fase) {
 
     this->pegar.setPosition( 730.0f, 80 );
     this->pegar.setTexture(controle[5]);
+
+    this->limpar.setPosition( 685, 345 );
+    this->limpar.setTexture(controle[5]);
 
 }
 
@@ -199,68 +199,59 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
             sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
 
             if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "Seguir" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::left) {
+                    this->pilha.Insere(SEGUIR);
+                    std::cout << "Seguir" << std::endl;
                 }
             }
 
             if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
                 std::cout << "horario" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    this->pilha.Insere(HORARIO);
                 }
             }
 
             if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
                 std::cout << "antihorario" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    this->pilha.Insere(ANTIHORARIO);
                 }
             }
 
             if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
                 std::cout << "funcao 1" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    this->pilha.Insere(FUNCAO1);
                 }
             }
 
             if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
                 std::cout << "funcao 2" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    this->pilha.Insere(FUNCAO2);
                 }
             }
 
             if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
                 std::cout << "pegar 2" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Right) {
-                    std::cout << "the right button was pressed" << std::endl;
-                } else{
-                    if (event.mouseButton.button == sf::Mouse::Left)
-                        std::cout << "the left button was pressed" << std::endl;
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    this->pilha.Insere(PEGAR);
+                }
+            }
+
+            if (this->limpar.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "limpar" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                    int ultimo;
+                    this->pilha.Retira(ultimo);
                 }
             }
 
@@ -277,8 +268,42 @@ void Jogo::desenharOpcoesControle(sf::RenderWindow &App){
     App.draw(funcao1);
     App.draw(funcao2);
     App.draw(pegar);
+    App.draw(limpar);
 }
 
+void Jogo::desenharFilaControle(sf::RenderWindow &App){
+    /* pilha auxiliar para desenhar os objetos */
+	Pilha<int> paux;
+	int aux;
+
+	while (!this->pilha.EstaVazia()) {
+		this->pilha.Retira(aux);
+		paux.Insere(aux);
+	}
+
+	int numeroElemento = 0;
+	int numeroElementoY = 0;
+	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
+	while (!paux.EstaVazia()) {
+		paux.Retira(aux);
+
+		/* inserimos o elemento de volta na stack */
+		pilha.Insere(aux);
+
+		objeto.setTexture(this->controle[aux]);
+		objeto.setPosition(625 + numeroElemento * 40 , 150 + numeroElementoY * 40);
+
+		numeroElemento++;
+
+		if(numeroElemento == 4){
+            numeroElementoY++;
+            numeroElemento = 0;
+		}
+
+        /* desenha o objeto */
+        App.draw(this->objeto);
+    }
+}
 
 /******** PERSONAGEM *********/
 
@@ -328,6 +353,7 @@ void Jogo::desenharJogo(sf::RenderWindow &App){
     App.draw(this->painel);
     this->desenharMapaAtual(App);
     this->desenharOpcoesControle(App);
+    this->desenharFilaControle(App);
     this->movimentarPersonagem(App);
 }
 

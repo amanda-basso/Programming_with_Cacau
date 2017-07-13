@@ -39,8 +39,9 @@
 			<Target title="Release">
 				<Option output="bin/Release/Jogo1" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
-				<Option type="0" />
+				<Option type="1" />
 				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />
@@ -78,20 +79,20 @@
 		<Unit filename="include/AnimatedSprite.h" />
 		<Unit filename="include/Animation.h" />
 		<Unit filename="include/Instrucao.h" />
-		<Unit filename="include/Introducao.h" />
 		<Unit filename="include/Jogo.h" />
+		<Unit filename="include/Lista.h" />
 		<Unit filename="include/Menu.h" />
-		<Unit filename="include/Pilha.h" />
+		<Unit filename="include/Node.h" />
 		<Unit filename="include/Vitoria.h" />
 		<Unit filename="include/cScreen.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="src/AnimatedSprite.cpp" />
 		<Unit filename="src/Animation.cpp" />
 		<Unit filename="src/Instrucao.cpp" />
-		<Unit filename="src/Introducao.cpp" />
 		<Unit filename="src/Jogo.cpp" />
+		<Unit filename="src/Lista.cpp" />
 		<Unit filename="src/Menu.cpp" />
-		<Unit filename="src/Pilha.cpp" />
+		<Unit filename="src/Node.cpp" />
 		<Unit filename="src/Vitoria.cpp" />
 		<Unit filename="src/cScreen.cpp" />
 		<Extensions>

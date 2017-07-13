@@ -4,11 +4,10 @@
 #include <SFML/Graphics.hpp>
 
 #define SAIR -1
-#define INTRO 0
-#define MENU 1
-#define GAME 2
-#define INSTRUCAO 3
-#define VITORIA 4
+#define MENU 0
+#define GAME 1
+#define INSTRUCAO 2
+#define VITORIA 3
 
 //classe pai que conterá todas as telas
 class Telas {

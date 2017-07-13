@@ -8,13 +8,12 @@
 #ifndef JOGO_H
 #define JOGO_H
 
-#include "../src/Pilha.cpp"
+
 /*
  *	Libraries
  ***********************************************************************/
 #include <iostream>
 #include "cScreen.h"
-#include "Pilha.h"
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Audio.hpp>
@@ -24,6 +23,7 @@
 #include <fstream>
 
 #include "AnimatedSprite.h"
+#include "../src/Pilha.cpp"
 
 #define LINHAS_X 20
 #define LINHAS_Y 20
@@ -39,6 +39,17 @@
 #define PEDRA 2
 #define AGUA 3
 #define PAREDE 4
+
+#define SEGUIR 0
+#define HORARIO 1
+#define ANTIHORARIO 2
+#define FUNCAO1 3
+#define FUNCAO2 4
+#define PEGAR 5
+#define LIMPAR 6
+
+#define ALTURA_INICIAL 300
+
 /*
  *	Classes
  ***********************************************************************/
@@ -47,18 +58,26 @@ class Jogo : public Telas {
 
     private:
 
+        Pilha<int> pilha;
+        sf::Sprite objeto;
+
         //botão
-        sf::Texture controle[6];
+        sf::Texture controle[7];
         sf::Sprite seguir;
         sf::Sprite horario;
         sf::Sprite antihorario;
         sf::Sprite funcao1;
         sf::Sprite funcao2;
         sf::Sprite pegar;
+        sf::Sprite limpar;
 
         //imagens com os itens/trecos
         sf::Texture itens[10];
         sf::Sprite mapa;
+
+        //painel
+        sf::Texture backgroundPainel;
+        sf::Sprite painel;
 
         sf::Texture texture;
         Animation walkingAnimationDown;
@@ -89,8 +108,6 @@ class Jogo : public Telas {
         //desenha todas as opções de controle
         void funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event);
         void desenharOpcoesControle(sf::RenderWindow &App);
-        void hoverBotoes(sf::RenderWindow &App, sf::Event &event);
-        void verificarCliqueBotoes(sf::RenderWindow &App, sf::Event &event);
 
         //desenha a fila que o jogador escolheu para fazer o personagem se mover
         void desenharFilaControle(sf::RenderWindow &App);

@@ -40,7 +40,6 @@ class Menu: public Telas {
         sf::Music sound;
 
         sf::Text play;
-        sf::Text introducao;
         sf::Text instrucoes;
         sf::Text back;
         sf::Text quit;
