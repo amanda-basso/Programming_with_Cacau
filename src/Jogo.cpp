@@ -2,6 +2,8 @@
 
 Jogo::Jogo(int fase) {
 
+
+
     /*********** PAINEL *******************/
     if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.jpg")){
          std::cerr << "Error loading painel" << std::endl;
@@ -23,6 +25,9 @@ Jogo::Jogo(int fase) {
 
 
     /************* Personagem ***************/
+
+    this->sentido = 2;
+
     if (!texture.loadFromFile("bin/Release/files/images/jogo/player.png")) {
          std::cerr << "Error loading personagem" << std::endl;
     }
@@ -54,7 +59,7 @@ Jogo::Jogo(int fase) {
 
     this->currentAnimation = &walkingAnimationDown;
 
-    this->animatedSprite.setPosition(0,0);
+    this->animatedSprite.setPosition(270,285);
 
     this->speed = 80.f;
     this->noKeyWasPressed = true;
@@ -69,30 +74,34 @@ Jogo::Jogo(int fase) {
         ||!this->controle[FUNCAO2].loadFromFile("bin/Release/files/images/jogo/g2.png")
         ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar2.jpg")
         ||!this->controle[LIMPAR].loadFromFile("bin/Release/files/images/jogo/limpar.jpg")
+        ||!this->controle[EXECUTAR].loadFromFile("bin/Release/files/images/jogo/executar.jpg")
         ){
         std::cout << "Can't find the ITEM" << std::endl;
     }
 
     this->seguir.setPosition(630, 30);
-    this->seguir.setTexture(controle[0]);
+    this->seguir.setTexture(controle[SEGUIR]);
 
     this->horario.setPosition(675, 30);
-    this->horario.setTexture(controle[1]);
+    this->horario.setTexture(controle[HORARIO]);
 
     this->antihorario.setPosition(730, 30);
-    this->antihorario.setTexture(controle[2]);
+    this->antihorario.setTexture(controle[ANTIHORARIO]);
 
     this->funcao1.setPosition( 630, 80 );
-    this->funcao1.setTexture(controle[3]);
+    this->funcao1.setTexture(controle[FUNCAO1]);
 
     this->funcao2.setPosition( 675, 80 );
-    this->funcao2.setTexture(controle[4]);
+    this->funcao2.setTexture(controle[FUNCAO2]);
 
     this->pegar.setPosition( 730.0f, 80 );
-    this->pegar.setTexture(controle[5]);
+    this->pegar.setTexture(controle[PEGAR]);
 
-    this->limpar.setPosition( 685, 345 );
-    this->limpar.setTexture(controle[5]);
+    this->limpar.setPosition( 650, 550 );
+    this->limpar.setTexture(controle[LIMPAR]);
+
+    this->executar.setPosition( 720, 550 );
+    this->executar.setTexture(controle[EXECUTAR]);
 
 }
 
@@ -141,6 +150,12 @@ int Jogo::Run(sf::RenderWindow &App) {
 
     return SAIR;
 }
+
+
+/****** EXECUCAO *********/
+ void Jogo::executarFilaControle(sf::RenderWindow &App){
+     this->desenharJogador(App, true);
+ }
 
 
 /***** BOTOES *****/
@@ -296,6 +311,15 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                 }
             }
 
+            if (this->executar.getGlobalBounds().contains( mousePosF ) ) {
+
+
+                if (event.mouseButton.button == sf::Mouse::Left) {
+                     std::cout << "EXECUTAR" << std::endl;
+                     this->executarFilaControle(App);
+                }
+            }
+
             break;
         }
     }
@@ -310,6 +334,7 @@ void Jogo::desenharOpcoesControle(sf::RenderWindow &App){
     App.draw(funcao2);
     App.draw(pegar);
     App.draw(limpar);
+    App.draw(executar);
 }
 
 void Jogo::desenharFilaControle(sf::RenderWindow &App){
@@ -416,46 +441,133 @@ void Jogo::desenharFilaControleF2(sf::RenderWindow &App){
 
 /******** PERSONAGEM *********/
 
-void Jogo::movimentarPersonagem(sf::RenderWindow &App){
-     // set up AnimatedSprite
+void Jogo::desenharJogador(sf::RenderWindow &App, bool movimento){
+    /* pilha auxiliar para executar */
 
-    sf::Time frameTime = frameClock.restart();
+    if(movimento){
+        this->movimentarPersonagem(App, this->pilha);
+    }else{
+        animatedSprite.play(*currentAnimation);
 
-    // if a key was pressed set the correct animation and move correctly
-    sf::Vector2f movement(0.f, 0.f);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        currentAnimation = &walkingAnimationUp;
-        movement.y -= speed;
-        noKeyWasPressed = false;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        currentAnimation = &walkingAnimationDown;
-        movement.y += speed;
-        noKeyWasPressed = false;
-    }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        currentAnimation = &walkingAnimationLeft;
-        movement.x -= speed;
-        noKeyWasPressed = false;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
-        currentAnimation = &walkingAnimationRight;
-        movement.x += speed;
-        noKeyWasPressed = false;
-    }
-
-    animatedSprite.play(*currentAnimation);
-    animatedSprite.move(movement * frameTime.asSeconds());
-
-    // if no key was pressed stop the animation
-    if (noKeyWasPressed) {
         animatedSprite.stop();
+        App.draw(animatedSprite);
     }
-    noKeyWasPressed = true;
+}
 
-    // update AnimatedSprite
-    animatedSprite.update(frameTime);
-    App.draw(animatedSprite);
+void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> pilha){
+
+    Pilha<int> paux;
+    bool movimento = false;
+    int aux = -1;
+    int aux2 = -1;
+    sf::Time frameTime = sf::seconds(1);
+    sf::Vector2f movement(0.f, 0.f);
+
+	while (!pilha.EstaVazia()) {
+        pilha.Retira(aux);
+		std::cout << aux << " " << this->sentido << std::endl;
+		paux.Insere(aux);
+		//pauxaux.Insere(aux);
+	}
+
+	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
+	while (!paux.EstaVazia()) {
+	    //proximo instrucao, paro de executar
+
+        animatedSprite.stop();
+		paux.Retira(aux2);
+        switch(aux2){
+            case SEGUIR:
+                    switch(this->sentido){
+                        //pra cima
+                        case 0:
+                            movement.y -= ITEM_ALTURA;
+                            break;
+                        //esquerda
+                        case 1:
+                            movement.x -= ITEM_LARGURA;
+                            break;
+                        //pra baixo
+                        case 2:
+                            movement.y += ITEM_ALTURA;
+                            break;
+                        //pra direita
+                        case 3:
+                            movement.x += ITEM_LARGURA;
+                            break;
+                    }
+
+                    movimento = true;
+                break;
+
+            case HORARIO:
+                this->sentido++;
+
+                switch(sentido % 4){
+                    //pra cima
+                    case 0:
+                        currentAnimation = &walkingAnimationUp;
+                        break;
+                    //esquerda
+                    case 1:
+                        currentAnimation = &walkingAnimationLeft;
+                        break;
+                    //pra baixo
+                    case 2:
+                        currentAnimation = &walkingAnimationDown;
+                        break;
+                    //pra direita
+                    case 3:
+                        currentAnimation = &walkingAnimationRight;
+                        break;
+                }
+                movimento = true;
+                break;
+
+            case ANTIHORARIO:
+
+                this->sentido = (sentido < 3) ? sentido++ :0;
+
+                switch(sentido){
+                    //pra cima
+                    case 0:
+                        currentAnimation = &walkingAnimationUp;
+                        break;
+                    //esquerda
+                    case 1:
+                        currentAnimation = &walkingAnimationLeft;
+                        break;
+                    //pra baixo
+                    case 2:
+                        currentAnimation = &walkingAnimationDown;
+                        break;
+                    //pra direita
+                    case 3:
+                        currentAnimation = &walkingAnimationRight;
+                        break;
+                }
+                break;
+
+            case FUNCAO1:
+                this->movimentarPersonagem(App, this->pilhafuncao1);
+                break;
+
+            case FUNCAO2:
+                this->movimentarPersonagem(App, this->pilhafuncao2);
+                break;
+
+            case PEGAR:
+                break;
+        }
+
+        pilha.Insere(aux);
+
+        animatedSprite.play(*currentAnimation);
+        animatedSprite.move(movement);
+        animatedSprite.update(frameTime);
+        App.draw(animatedSprite);
+    }
+
 }
 
 void Jogo::desenharJogo(sf::RenderWindow &App){
@@ -465,7 +577,7 @@ void Jogo::desenharJogo(sf::RenderWindow &App){
     this->desenharFilaControle(App);
     this->desenharFilaControleF1(App);
     this->desenharFilaControleF2(App);
-    this->movimentarPersonagem(App);
+    this->desenharJogador(App, false);
 }
 
 

@@ -20,6 +20,7 @@
 #include <sstream>
 #include <math.h>
 
+#include <windows.h>
 #include <fstream>
 
 #include "AnimatedSprite.h"
@@ -47,6 +48,7 @@
 #define FUNCAO2 4
 #define PEGAR 5
 #define LIMPAR 6
+#define EXECUTAR 7
 
 #define ALTURA_INICIAL 300
 
@@ -64,7 +66,7 @@ class Jogo : public Telas {
         sf::Sprite objeto;
 
         //botão
-        sf::Texture controle[7];
+        sf::Texture controle[8];
         sf::Sprite seguir;
         sf::Sprite horario;
         sf::Sprite antihorario;
@@ -72,6 +74,7 @@ class Jogo : public Telas {
         sf::Sprite funcao2;
         sf::Sprite pegar;
         sf::Sprite limpar;
+        sf::Sprite executar;
 
         //imagens com os itens/trecos
         sf::Texture itens[10];
@@ -96,6 +99,7 @@ class Jogo : public Telas {
 
         int mapaAtual[LINHAS_X][LINHAS_Y];
         int fase;
+        int sentido;
 
         //método que redesenha o jogo durante o loop
         void desenharJogo(sf::RenderWindow &App);
@@ -116,6 +120,9 @@ class Jogo : public Telas {
         void desenharFilaControleF1(sf::RenderWindow &App);
         void desenharFilaControleF2(sf::RenderWindow &App);
 
+
+        void desenharJogador(sf::RenderWindow &App, bool movimento);
+
         //adiciona um controle
         void adicionarControle();
 
@@ -123,9 +130,9 @@ class Jogo : public Telas {
         void removerControle();
 
         //executa a fila de controles, verificando o caminho e movimentando o personagem
-        void executarFilaControle();
+        void executarFilaControle(sf::RenderWindow &App);
 
-        void movimentarPersonagem(sf::RenderWindow &App);
+        void movimentarPersonagem(sf::RenderWindow &App, Pilha<int> pilha);
         void verificarCaminho(float x, float y) const;
 
     public:

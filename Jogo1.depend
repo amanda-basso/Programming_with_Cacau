@@ -421,10 +421,10 @@
 	<string>
 	<SFML/Graphics.hpp>
 
-1499956399 source:a:\jogo 2\src\jogo.cpp
+1499969383 source:a:\jogo 2\src\jogo.cpp
 	"Jogo.h"
 
-1499955727 a:\jogo 2\include\jogo.h
+1499969368 a:\jogo 2\include\jogo.h
 	<iostream>
 	"cScreen.h"
 	<string>
@@ -432,6 +432,7 @@
 	<SFML/Audio.hpp>
 	<sstream>
 	<math.h>
+	<windows.h>
 	<fstream>
 	"AnimatedSprite.h"
 	"../src/Pilha.cpp"
