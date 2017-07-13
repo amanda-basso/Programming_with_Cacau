@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1499880593 source:a:\jogo 2 aux\main.cpp
+1499881623 source:a:\jogo 2\main.cpp
 	<iostream>
 	<SFML/Graphics.hpp>
 	<ctime>
@@ -398,7 +398,20 @@
 	<string>
 	<vector>
 
-1495137663 a:\jogo 2 aux\include\jogo.h
+1499876894 a:\jogo 2\include\animatedsprite.h
+	<SFML/Graphics/RenderTarget.hpp>
+	<SFML/System/Time.hpp>
+	<SFML/Graphics/Drawable.hpp>
+	<SFML/Graphics/Transformable.hpp>
+	<SFML/System/Vector2.hpp>
+	"Animation.h"
+
+1499876528 a:\jogo 2\include\animation.h
+	<vector>
+	<SFML/Graphics/Rect.hpp>
+	<SFML/Graphics/Texture.hpp>
+
+1499930395 a:\jogo 2\include\jogo.h
 	"../src/Pilha.cpp"
 	<iostream>
 	"cScreen.h"
@@ -408,14 +421,16 @@
 	<SFML/Audio.hpp>
 	<sstream>
 	<math.h>
+	<fstream>
+	"AnimatedSprite.h"
 
-1495105148 a:\jogo 2 aux\src\pilha.cpp
+1495105148 a:\jogo 2\src\pilha.cpp
 	"Pilha.h"
 
-1495105086 a:\jogo 2 aux\include\pilha.h
+1495105086 a:\jogo 2\include\pilha.h
 	<iostream>
 
-1499870311 a:\jogo 2 aux\include\cscreen.h
+1499870311 a:\jogo 2\include\cscreen.h
 	<SFML/Graphics.hpp>
 
 1486736397 c:\program files (x86)\codeblocks\sfml\include\sfml\audio.hpp
@@ -521,148 +536,6 @@
 	<SFML/Audio/Export.hpp>
 	<string>
 
-1499881343 a:\jogo 2 aux\include\menu.h
-	<iostream>
-	<string>
-	"cScreen.h"
-	<windows.h>
-	"AnimatedSprite.h"
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-
-1499864543 a:\jogo 2 aux\include\instrucao.h
-	<iostream>
-	"cScreen.h"
-	<string>
-	<SFML/Graphics.hpp>
-
-1499865738 a:\jogo 2 aux\include\introducao.h
-	<iostream>
-	<string>
-	"cScreen.h"
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-
-1495122145 a:\jogo 2 aux\include\vitoria.h
-	<iostream>
-	<string>
-	"cScreen.h"
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-
-1493668011 source:a:\jogo 2 aux\src\cscreen.cpp
-	"cScreen.h"
-
-1499873002 source:a:\jogo 2 aux\src\instrucao.cpp
-	"Instrucao.h"
-
-1499873018 source:a:\jogo 2 aux\src\introducao.cpp
-	"Introducao.h"
-
-1499870848 source:a:\jogo 2 aux\src\jogo.cpp
-	"Jogo.h"
-
-1495105148 source:a:\jogo 2 aux\src\pilha.cpp
-	"Pilha.h"
-
-1495122618 source:a:\jogo 2 aux\src\vitoria.cpp
-	"Vitoria.h"
-
-1499881265 source:a:\jogo 2 aux\src\menu.cpp
-	"Menu.h"
-
-1499876894 a:\jogo 2 aux\include\animatedsprite.h
-	<SFML/Graphics/RenderTarget.hpp>
-	<SFML/System/Time.hpp>
-	<SFML/Graphics/Drawable.hpp>
-	<SFML/Graphics/Transformable.hpp>
-	<SFML/System/Vector2.hpp>
-	"Animation.h"
-
-1499876528 a:\jogo 2 aux\include\animation.h
-	<vector>
-	<SFML/Graphics/Rect.hpp>
-	<SFML/Graphics/Texture.hpp>
-
-1499876611 source:a:\jogo 2 aux\src\animatedsprite.cpp
-	"AnimatedSprite.h"
-
-1499876521 source:a:\jogo 2 aux\src\animation.cpp
-	"Animation.h"
-
-1493668011 source:a:\jogo 2\src\cscreen.cpp
-	"cScreen.h"
-
-1499870311 a:\jogo 2\include\cscreen.h
-	<SFML/Graphics.hpp>
-
-1495122535 source:a:\jogo 2\src\derrota.cpp
-	"Derrota.h"
-
-1495122136 a:\jogo 2\include\derrota.h
-	<iostream>
-	<string>
-	"cScreen.h"
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-
-1499870848 source:a:\jogo 2\src\jogo.cpp
-	"Jogo.h"
-
-1495137663 a:\jogo 2\include\jogo.h
-	"../src/Pilha.cpp"
-	<iostream>
-	"cScreen.h"
-	"Pilha.h"
-	<string>
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-	<sstream>
-	<math.h>
-
-1495105148 a:\jogo 2\src\pilha.cpp
-	"Pilha.h"
-
-1495105086 a:\jogo 2\include\pilha.h
-	<iostream>
-
-1495105148 source:a:\jogo 2\src\pilha.cpp
-	"Pilha.h"
-
-1495122618 source:a:\jogo 2\src\vitoria.cpp
-	"Vitoria.h"
-
-1495122145 a:\jogo 2\include\vitoria.h
-	<iostream>
-	<string>
-	"cScreen.h"
-	<SFML/Graphics.hpp>
-	<SFML/Audio.hpp>
-
-1499881623 source:a:\jogo 2\main.cpp
-	<iostream>
-	<SFML/Graphics.hpp>
-	<ctime>
-	"AnimatedSprite.h"
-	"Jogo.h"
-	"Menu.h"
-	"Instrucao.h"
-	"Introducao.h"
-	"Vitoria.h"
-
-1499876894 a:\jogo 2\include\animatedsprite.h
-	<SFML/Graphics/RenderTarget.hpp>
-	<SFML/System/Time.hpp>
-	<SFML/Graphics/Drawable.hpp>
-	<SFML/Graphics/Transformable.hpp>
-	<SFML/System/Vector2.hpp>
-	"Animation.h"
-
-1499876528 a:\jogo 2\include\animation.h
-	<vector>
-	<SFML/Graphics/Rect.hpp>
-	<SFML/Graphics/Texture.hpp>
-
 1499881442 a:\jogo 2\include\menu.h
 	<iostream>
 	<string>
@@ -685,11 +558,21 @@
 	<SFML/Graphics.hpp>
 	<SFML/Audio.hpp>
 
+1495122145 a:\jogo 2\include\vitoria.h
+	<iostream>
+	<string>
+	"cScreen.h"
+	<SFML/Graphics.hpp>
+	<SFML/Audio.hpp>
+
 1499876611 source:a:\jogo 2\src\animatedsprite.cpp
 	"AnimatedSprite.h"
 
 1499876521 source:a:\jogo 2\src\animation.cpp
 	"Animation.h"
+
+1493668011 source:a:\jogo 2\src\cscreen.cpp
+	"cScreen.h"
 
 1499873002 source:a:\jogo 2\src\instrucao.cpp
 	"Instrucao.h"
@@ -697,6 +580,15 @@
 1499873018 source:a:\jogo 2\src\introducao.cpp
 	"Introducao.h"
 
-1499881480 source:a:\jogo 2\src\menu.cpp
+1499920051 source:a:\jogo 2\src\menu.cpp
 	"Menu.h"
+
+1495105148 source:a:\jogo 2\src\pilha.cpp
+	"Pilha.h"
+
+1495122618 source:a:\jogo 2\src\vitoria.cpp
+	"Vitoria.h"
+
+1499927830 source:a:\jogo 2\src\jogo.cpp
+	"Jogo.h"
 

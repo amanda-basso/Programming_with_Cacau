@@ -1,200 +1,402 @@
 #include "Jogo.h"
+#define CONCRETO 0
+#define GRAMA 1
+#define PEDRA 2
+#define AGUA 3
+#define PAREDE 4
 
-#define NUMERO_VIDAS 3
-#define ALTURA_INICIAL 78
-#define NUMERO_ACERTOS_VITORIA 6
-#define SCORE_ACERTO 50
-#define LARGURA_ITEM 115
-#define ALTURA_BRUXA 64
+Jogo::Jogo(int fase) {
 
-template <typename T>
-std::string to_string(T value) {
-  std::ostringstream os ;
+    //itens do mapa
+    if (!this->itens[CONCRETO].loadFromFile("bin/Release/files/images/jogo/concreto.jpg")
+        || !this->itens[GRAMA].loadFromFile("bin/Release/files/images/jogo/grama.jpg")
+        || !this->itens[PEDRA].loadFromFile("bin/Release/files/images/jogo/pedra.jpg")
+        || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/agua.jpg")
+        || !this->itens[PAREDE].loadFromFile("bin/Release/files/images/jogo/parede.jpg")
+        ){
 
-  os << value ;
-
-  return os.str() ;
-}
-
-/* construtor com as imagens */
-Jogo::Jogo(void) {
-    this->movement_step = 10;
-    this->posx = 275;
-    this->posy = 350;
-    this->i = 0;
-    this->alturaTopo = 434;
-    this->perdeu = false;
-
-    //não há imagem para o sprite de lançamento
-    this->objetoLancamento = -1;
-
-    //se achar a imagem de fundo
-    if (this->fundoJogo.loadFromFile("bin/Release/files/images/background.png")){
-        this->background.setTexture(fundoJogo);
+         std::cerr << "Error loading itens" << std::endl;
     }
 
+    /************* Personagem ***************/
 
-    //valor inicial do placar
-    this->placar = 0;
-
-    //se encontrar a fonte
-    if (this->Font.loadFromFile("bin/Release/files/fonts/Arkhamreg.ttf")) {
-        this->text_placar2.setFont(Font);
-        this->text_placar2.setColor(sf::Color(255, 255, 255, 255));
-        this->text_placar2.setCharacterSize(70);
-        this->text_placar2.setPosition({600.f, 180.f });
+    if (!texture.loadFromFile("bin/Release/files/images/jogo/player.png")) {
+         std::cerr << "Error loading personagem" << std::endl;
     }
 
-    //número inicial de vidas
-	this->nroVidas = NUMERO_VIDAS;
+    //todas as direções possiveis do personagem
+    this->walkingAnimationDown.setSpriteSheet(texture);
+    this->walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
+    this->walkingAnimationDown.addFrame(sf::IntRect(64, 0, 32, 32));
+    this->walkingAnimationDown.addFrame(sf::IntRect(32, 0, 32, 32));
+    this->walkingAnimationDown.addFrame(sf::IntRect( 0, 0, 32, 32));
 
-	if (this->imagem_vidas.loadFromFile("bin/Release/files/images/coracao.png"))
-    		this->vidas.setTexture(this->imagem_vidas);
+    this->walkingAnimationLeft.setSpriteSheet(texture);
+    this->walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
+    this->walkingAnimationLeft.addFrame(sf::IntRect(64, 32, 32, 32));
+    this->walkingAnimationLeft.addFrame(sf::IntRect(32, 32, 32, 32));
+    this->walkingAnimationLeft.addFrame(sf::IntRect( 0, 32, 32, 32));
 
-	this->imagem_jogador[0].loadFromFile("bin/Release/files/images/player01.png");
-	this->imagem_jogador[1].loadFromFile("bin/Release/files/images/player02.png");
-	this->imagem_jogador[2].loadFromFile("bin/Release/files/images/player03.png");
-	this->imagem_jogador[3].loadFromFile("bin/Release/files/images/player04.png");
-	this->imagem_jogador[4].loadFromFile("bin/Release/files/images/player05.png");
+    this->walkingAnimationRight.setSpriteSheet(texture);
+    this->walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
+    this->walkingAnimationRight.addFrame(sf::IntRect(64, 64, 32, 32));
+    this->walkingAnimationRight.addFrame(sf::IntRect(32, 64, 32, 32));
+    this->walkingAnimationRight.addFrame(sf::IntRect( 0, 64, 32, 32));
 
-	this->imagem_objeto[0].loadFromFile("bin/Release/files/images/ball.png");
-	this->imagem_objeto[1].loadFromFile("bin/Release/files/images/skull.png");
-	this->imagem_objeto[2].loadFromFile("bin/Release/files/images/caulderon.png");
-	this->imagem_objeto[3].loadFromFile("bin/Release/files/images/poison.png");
+    this->walkingAnimationUp.setSpriteSheet(texture);
+    this->walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
+    this->walkingAnimationUp.addFrame(sf::IntRect(64, 96, 32, 32));
+    this->walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
+    this->walkingAnimationUp.addFrame(sf::IntRect( 0, 96, 32, 32));
 
-}
+    this->currentAnimation = &walkingAnimationDown;
 
-/*Realiza o desenho dos corações da vida*/
-void Jogo::desenharVida(sf::RenderWindow &App){
-	int posix = 552;
+    this->animatedSprite.setPosition(0,0);
 
-	//desenho a quantidade de coraçoes
-	for(int i = 0; i < this->nroVidas; i++){
-	    this->vidas.setPosition(posix, 350);
-	    App.draw(this->vidas);
-	    posix += 50;
-	}
-}
+    this->speed = 80.f;
+    this->noKeyWasPressed = true;
 
-/* função desenha pilha */
-void Jogo::desenhaPilhaObjetos(sf::RenderWindow &App){
+    /************* BOTOES ***************/
+    if (!this->controle[0].loadFromFile("bin/Release/files/images/jogo/seguir2.png")
+        ||!this->controle[1].loadFromFile("bin/Release/files/images/jogo/horario2.png")
+        ||!this->controle[2].loadFromFile("bin/Release/files/images/jogo/antihorario2.png")
+        ||!this->controle[3].loadFromFile("bin/Release/files/images/jogo/f2.png")
+        ||!this->controle[4].loadFromFile("bin/Release/files/images/jogo/g2.png")
+        ||!this->controle[5].loadFromFile("bin/Release/files/images/jogo/pegar2.jpg")
+        ){
+        std::cout << "Can't find the image" << std::endl;
+    }
 
-}
+    this->seguir.setPosition( 50.0f, 20.0f );
+    this->seguir.setTexture(controle[0]);
 
-/*Função que faz o objeto "cair*/
-void Jogo::lancarObjeto(sf::RenderWindow &App){
+    this->horario.setPosition( 100.0f, 20.0f );
+    this->horario.setTexture(controle[1]);
 
-}
+    this->antihorario.setPosition( 150.0f, 20.0f );
+    this->antihorario.setTexture(controle[2]);
 
-/*Função que verifica se a bruxinha acertou o objeto*/
-void Jogo::colisao(sf::RenderWindow &App){
+    this->funcao1.setPosition( 200.0f, 20.0f );
+    this->funcao1.setTexture(controle[3]);
 
-}
+    this->funcao2.setPosition( 250.0f, 20.0f );
+    this->funcao2.setTexture(controle[4]);
 
-/*Desenha o placar*/
-void Jogo::desenharPlacar(sf::RenderWindow &App){
-	//atualiza o placar
-	this->text_placar2.setString(to_string(placar));
+    this->pegar.setPosition( 300.0f, 20.0f );
+    this->pegar.setTexture(controle[5]);
 
-	//desenho os textos
-	App.draw(this->text_placar1);
-	App.draw(this->text_placar2);
-}
-
-/*Desenha o painel do jogo*/
-void Jogo::desenharPainel(sf::RenderWindow &App){
-//desenho todos os componentesdo painel
-  this->desenharPlacar(App);
-  this->desenharVida(App);
-}
-
-/*Função que chama todas as funções gráficas da tela*/
-void Jogo::desenharTela(sf::RenderWindow &App){
-	//limpo os elementos da tela
-	App.clear(sf::Color(0, 0, 0, 0));
-
-	//desenho o fundo
-	App.draw(this->background);
-	App.draw(this->jogador);
-
-	//desenhar o placar
-	this->desenharPainel(App);
-	//desenhar a pilha de objetos
-	this->desenhaPilhaObjetos(App);
-	//realizar a colisão entre personagem e objeto
-    this->colisao(App);
-
-	//exibo na tela
-	App.display();
 }
 
 int Jogo::Run(sf::RenderWindow &App) {
+    //evento do teclado
+    sf::Event event;
 
-	sf::Event Event;
-	bool Running = true;
+    this->carregarMapaAtual(App, 1);
 
-	//toco uma música de fundo do jogo
-	sf::Music MusicaFundo;
+    while (true){
 
-	if (!MusicaFundo.openFromFile("bin/Release/files/sounds/menu/the_field_of_dreams.ogg"))
-	      std::cerr << "Error loading menu.ogg" << std::endl;
+        while ( App.pollEvent( event ) ){
 
-	MusicaFundo.setVolume(50); //defino um volume mais baixo que o normal para a música não ser cansativa
-	MusicaFundo.setLoop(true); //para a musica ficar sempre tocando
-	MusicaFundo.play(); //tocar a musica do menu
+            //se a janela fechar
+			if (event.type == sf::Event::Closed)
+				return SAIR;
 
-	//enquanto estiver rodando
-	while (Running) {
+			//se alguma tecla for pressionada
+			if (event.type == sf::Event::KeyPressed) {
 
-        //perdeu o jogo
-        if(this->nroVidas < 0){
-            return 3;
-        }
+				switch (event.key.code) {
 
-        //venceu
-        if(this->placar == NUMERO_ACERTOS_VITORIA*SCORE_ACERTO){
-            return 2;
-        }
-
-        this->lancarObjeto(App);
-
-		//Verifico os eventos possíveis
-		while (App.pollEvent(Event)) {
-			// caso feche a janela
-			if (Event.type == sf::Event::Closed)
-				return -1;
-
-			// caso utilize o teclado
-			if (Event.type == sf::Event::KeyPressed) {
-
-				switch (Event.key.code) {
-
-                    case sf::Keyboard::Escape:
-                        return MENU;
+                    //se for a tecla esc
+					case sf::Keyboard::Escape:
+						return MENU;
                         break;
-                    case sf::Keyboard::Left:
-						if (posx > -125)
-                            this->posx -= movement_step;
+
+                    //se for a tecla enter
+					case sf::Keyboard::Return:
                         break;
-                    case sf::Keyboard::Right:
-						if (posx < 675)
-                            this->posx += movement_step;
-                        break;
+
 					default:
                         break;
-
 				}
-
-			} else if (Event.type == sf::Event::MouseMoved) {
-				if ((Event.mouseMove.x - 50) >= 0 && (Event.mouseMove.x + 50) < 800)
-					this->posx = Event.mouseMove.x - 125;
 			}
-		}
 
-		this->jogador.setPosition({this->posx, this->posy});
-		this->desenharTela(App);
-	}
+			//executo as operações necessárias com o botão
+			this->funcionalidadeBotao(App, event);
+        }
 
-	//caso aconteça algum erro e chegue neste ponto...
-	return -1;
+        App.clear();
+        this->desenharOpcoesControle(App);
+        this->desenharJogo(App);
+        App.display();
+    }
+
+    return SAIR;
+}
+
+
+/***** BOTOES *****/
+
+void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
+
+    switch (event.type) {
+
+        //se o mouse mover
+        case sf::Event::MouseMoved: {
+
+            sf::Vector2i mousePos = sf::Mouse::getPosition( App );
+            sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
+
+            if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
+                this->seguir.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->seguir.setColor( sf::Color( 255, 255, 255 ) );
+            }
+
+            if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
+                this->horario.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->horario.setColor( sf::Color( 255, 255, 255 ) );
+            }
+
+            if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
+                this->antihorario.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->antihorario.setColor( sf::Color( 255, 255, 255 ) );
+            }
+
+            if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
+                this->funcao1.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->funcao1.setColor( sf::Color( 255, 255, 255 ) );
+            }
+
+            if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
+                this->funcao2.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->funcao2.setColor( sf::Color( 255, 255, 255 ) );
+            }
+
+            if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
+                this->pegar.setColor( sf::Color( 250, 20, 20 ) );
+            } else {
+                this->pegar.setColor( sf::Color( 255, 255, 255 ) );
+            }
+            break;
+        }
+
+        case sf::Event::MouseButtonPressed: {
+
+            sf::Vector2i mousePos = sf::Mouse::getPosition( App );
+            sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
+
+            if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "Seguir" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "horario" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "antihorario" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "funcao 1" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "funcao 2" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
+                std::cout << "pegar 2" << std::endl;
+
+                if (event.mouseButton.button == sf::Mouse::Right) {
+                    std::cout << "the right button was pressed" << std::endl;
+                } else{
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                        std::cout << "the left button was pressed" << std::endl;
+                }
+            }
+
+            break;
+        }
+    }
+}
+
+void Jogo::desenharOpcoesControle(sf::RenderWindow &App){
+    //desenho os botões
+    App.draw(seguir);
+    App.draw(horario);
+    App.draw(antihorario);
+    App.draw(funcao1);
+    App.draw(funcao2);
+    App.draw(pegar);
+}
+
+
+/******** PERSONAGEM *********/
+
+void Jogo::movimentarPersonagem(sf::RenderWindow &App){
+     // set up AnimatedSprite
+
+    sf::Time frameTime = frameClock.restart();
+
+    // if a key was pressed set the correct animation and move correctly
+    sf::Vector2f movement(0.f, 0.f);
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+        currentAnimation = &walkingAnimationUp;
+        movement.y -= speed;
+        noKeyWasPressed = false;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+        currentAnimation = &walkingAnimationDown;
+        movement.y += speed;
+        noKeyWasPressed = false;
+    }
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        currentAnimation = &walkingAnimationLeft;
+        movement.x -= speed;
+        noKeyWasPressed = false;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
+        currentAnimation = &walkingAnimationRight;
+        movement.x += speed;
+        noKeyWasPressed = false;
+    }
+
+    animatedSprite.play(*currentAnimation);
+    animatedSprite.move(movement * frameTime.asSeconds());
+
+    // if no key was pressed stop the animation
+    if (noKeyWasPressed) {
+        animatedSprite.stop();
+    }
+    noKeyWasPressed = true;
+
+    // update AnimatedSprite
+    animatedSprite.update(frameTime);
+    App.draw(animatedSprite);
+}
+
+void Jogo::desenharJogo(sf::RenderWindow &App){
+    this->desenharMapaAtual(App);
+    this->desenharOpcoesControle(App);
+    this->movimentarPersonagem(App);
+}
+
+
+/************ MAPA ******************/
+
+void Jogo::desenharMapaAtual(sf::RenderWindow &App){
+
+    //percorro as colunas
+    for(int i = 0; i <LINHAS_Y; i++){
+
+        //percorro as linhas
+        for(int j = 0; j <LINHAS_X; j++){
+            //percorro cada posicao da matriz
+
+            mapa.setTexture(this->itens[this->mapaAtual[i][j]]);
+            mapa.setPosition(j*ITEM_LARGURA, i*ITEM_ALTURA);
+            //desenha o item no mapa
+            App.draw(mapa);
+        }
+    }
+}
+
+void Jogo::carregarMapaAtual(sf::RenderWindow &App, int fase){
+    string linha, nomeArquivo;
+    ifstream arquivo;
+    int x , y, tamanhoString;
+
+    //limpo a matriz
+    for(int y = 0;y <LINHAS_Y; y++){
+
+        for(int x = 0; x <LINHAS_X; x++){
+            this->mapaAtual[y][x] = -1;
+        }
+
+        cout <<endl;
+    }
+
+    //escolho o arquivo da fase atual
+    switch(fase){
+        case 1:
+            arquivo.open("bin/Release/files/fases/mapa1.txt");
+            break;
+        default:
+            //arquivo default
+            arquivo.open("bin/Release/files/fases/mapa0.txt");
+            break;
+    }
+
+    //se o arquivo estiver aberto
+    if(arquivo.is_open()){
+
+        y = 0;
+        //enquanto houver linha no arquivo e não for maior que o tamanho máximo
+        while((getline(arquivo, linha)) && (y < LINHAS_Y)){
+
+            //tamanho da linha atual
+            tamanhoString = linha.length();
+
+            for(x = 0; (x < LINHAS_X) && (x < tamanhoString); x++){
+
+                //obtenho o char do valor e transformo no int
+                this->mapaAtual[y][x] = linha[x]-48;
+            }
+
+            //incremento as linhas
+            y++;
+        }
+    }
+}
+
+
+/****** OUTROS ********/
+
+template <typename T>
+std::string to_string(T value) {
+    std::ostringstream os ;
+
+    os << value ;
+
+    return os.str() ;
 }
