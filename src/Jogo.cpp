@@ -200,9 +200,16 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
             if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
 
-                if (event.mouseButton.button == sf::Mouse::left) {
+                if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(SEGUIR);
-                    std::cout << "Seguir" << std::endl;
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(SEGUIR);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(SEGUIR);
+                        }
+                    }
                 }
             }
 
@@ -211,6 +218,14 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(HORARIO);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(HORARIO);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(HORARIO);
+                        }
+                    }
                 }
             }
 
@@ -219,6 +234,14 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(ANTIHORARIO);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(ANTIHORARIO);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(ANTIHORARIO);
+                        }
+                    }
                 }
             }
 
@@ -227,6 +250,14 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(FUNCAO1);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(FUNCAO1);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(FUNCAO1);
+                        }
+                    }
                 }
             }
 
@@ -235,6 +266,14 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(FUNCAO2);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(FUNCAO2);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(FUNCAO2);
+                        }
+                    }
                 }
             }
 
@@ -243,6 +282,14 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(PEGAR);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        this->pilhafuncao1.Insere(PEGAR);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            this->pilhafuncao2.Insere(PEGAR);
+                        }
+                    }
                 }
             }
 
@@ -252,6 +299,16 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     int ultimo;
                     this->pilha.Retira(ultimo);
+                } else {
+                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                        int ultimo;
+                        this->pilhafuncao1.Retira(ultimo);
+                    } else{
+                        if (event.mouseButton.button == sf::Mouse::Right) {
+                            int ultimo;
+                            this->pilhafuncao2.Retira(ultimo);
+                        }
+                    }
                 }
             }
 
@@ -291,11 +348,79 @@ void Jogo::desenharFilaControle(sf::RenderWindow &App){
 		pilha.Insere(aux);
 
 		objeto.setTexture(this->controle[aux]);
-		objeto.setPosition(625 + numeroElemento * 40 , 150 + numeroElementoY * 40);
+		objeto.setPosition(625 + numeroElemento * 30 , 150 + numeroElementoY * 32);
 
 		numeroElemento++;
 
-		if(numeroElemento == 4){
+		if(numeroElemento == 5){
+            numeroElementoY++;
+            numeroElemento = 0;
+		}
+
+        /* desenha o objeto */
+        App.draw(this->objeto);
+    }
+}
+
+void Jogo::desenharFilaControleF1(sf::RenderWindow &App){
+    /* pilha auxiliar para desenhar os objetos */
+	Pilha<int> paux;
+	int aux;
+
+	while (!this->pilhafuncao1.EstaVazia()) {
+		this->pilhafuncao1.Retira(aux);
+		paux.Insere(aux);
+	}
+
+	int numeroElemento = 0;
+	int numeroElementoY = 0;
+	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
+	while (!paux.EstaVazia()) {
+		paux.Retira(aux);
+
+		/* inserimos o elemento de volta na stack */
+		pilhafuncao1.Insere(aux);
+
+		objeto.setTexture(this->controle[aux]);
+		objeto.setPosition(625 + numeroElemento * 30 , 380 + numeroElementoY * 30);
+
+		numeroElemento++;
+
+		if(numeroElemento == 5){
+            numeroElementoY++;
+            numeroElemento = 0;
+		}
+
+        /* desenha o objeto */
+        App.draw(this->objeto);
+    }
+}
+
+void Jogo::desenharFilaControleF2(sf::RenderWindow &App){
+    /* pilha auxiliar para desenhar os objetos */
+	Pilha<int> paux;
+	int aux;
+
+	while (!this->pilhafuncao2.EstaVazia()) {
+		this->pilhafuncao2.Retira(aux);
+		paux.Insere(aux);
+	}
+
+	int numeroElemento = 0;
+	int numeroElementoY = 0;
+	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
+	while (!paux.EstaVazia()) {
+		paux.Retira(aux);
+
+		/* inserimos o elemento de volta na stack */
+		pilhafuncao2.Insere(aux);
+
+		objeto.setTexture(this->controle[aux]);
+		objeto.setPosition(625 + numeroElemento * 30 , 470 + numeroElementoY * 30);
+
+		numeroElemento++;
+
+		if(numeroElemento == 5){
             numeroElementoY++;
             numeroElemento = 0;
 		}
@@ -354,6 +479,8 @@ void Jogo::desenharJogo(sf::RenderWindow &App){
     this->desenharMapaAtual(App);
     this->desenharOpcoesControle(App);
     this->desenharFilaControle(App);
+    this->desenharFilaControleF1(App);
+    this->desenharFilaControleF2(App);
     this->movimentarPersonagem(App);
 }
 

@@ -59,6 +59,8 @@ class Jogo : public Telas {
     private:
 
         Pilha<int> pilha;
+        Pilha<int> pilhafuncao1;
+        Pilha<int> pilhafuncao2;
         sf::Sprite objeto;
 
         //botão
@@ -111,6 +113,8 @@ class Jogo : public Telas {
 
         //desenha a fila que o jogador escolheu para fazer o personagem se mover
         void desenharFilaControle(sf::RenderWindow &App);
+        void desenharFilaControleF1(sf::RenderWindow &App);
+        void desenharFilaControleF2(sf::RenderWindow &App);
 
         //adiciona um controle
         void adicionarControle();

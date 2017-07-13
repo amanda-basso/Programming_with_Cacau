@@ -83,6 +83,7 @@
 		<Unit filename="include/Lista.h" />
 		<Unit filename="include/Menu.h" />
 		<Unit filename="include/Node.h" />
+		<Unit filename="include/Pilha.h" />
 		<Unit filename="include/Vitoria.h" />
 		<Unit filename="include/cScreen.h" />
 		<Unit filename="main.cpp" />
@@ -93,6 +94,7 @@
 		<Unit filename="src/Lista.cpp" />
 		<Unit filename="src/Menu.cpp" />
 		<Unit filename="src/Node.cpp" />
+		<Unit filename="src/Pilha.cpp" />
 		<Unit filename="src/Vitoria.cpp" />
 		<Unit filename="src/cScreen.cpp" />
 		<Extensions>
