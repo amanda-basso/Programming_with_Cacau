@@ -250,14 +250,6 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(FUNCAO1);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(FUNCAO1);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(FUNCAO1);
-                        }
-                    }
                 }
             }
 
@@ -266,14 +258,6 @@ void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
 
                 if (event.mouseButton.button == sf::Mouse::Left) {
                     this->pilha.Insere(FUNCAO2);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(FUNCAO2);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(FUNCAO2);
-                        }
-                    }
                 }
             }
 
