@@ -7,6 +7,15 @@
 
 Jogo::Jogo(int fase) {
 
+    /*********** PAINEL *******************/
+    if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.jpg")){
+         std::cerr << "Error loading painel" << std::endl;
+    }
+
+    this->painel.setPosition(600, 0);
+    this->painel.setTexture(this->backgroundPainel);
+
+    /*********** ITENS MAPA *******************/
     //itens do mapa
     if (!this->itens[CONCRETO].loadFromFile("bin/Release/files/images/jogo/concreto.jpg")
         || !this->itens[GRAMA].loadFromFile("bin/Release/files/images/jogo/grama.jpg")
@@ -14,12 +23,11 @@ Jogo::Jogo(int fase) {
         || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/agua.jpg")
         || !this->itens[PAREDE].loadFromFile("bin/Release/files/images/jogo/parede.jpg")
         ){
-
          std::cerr << "Error loading itens" << std::endl;
     }
 
-    /************* Personagem ***************/
 
+    /************* Personagem ***************/
     if (!texture.loadFromFile("bin/Release/files/images/jogo/player.png")) {
          std::cerr << "Error loading personagem" << std::endl;
     }
@@ -56,6 +64,7 @@ Jogo::Jogo(int fase) {
     this->speed = 80.f;
     this->noKeyWasPressed = true;
 
+
     /************* BOTOES ***************/
     if (!this->controle[0].loadFromFile("bin/Release/files/images/jogo/seguir2.png")
         ||!this->controle[1].loadFromFile("bin/Release/files/images/jogo/horario2.png")
@@ -67,22 +76,22 @@ Jogo::Jogo(int fase) {
         std::cout << "Can't find the image" << std::endl;
     }
 
-    this->seguir.setPosition( 50.0f, 20.0f );
+    this->seguir.setPosition(630, 30);
     this->seguir.setTexture(controle[0]);
 
-    this->horario.setPosition( 100.0f, 20.0f );
+    this->horario.setPosition(675, 30);
     this->horario.setTexture(controle[1]);
 
-    this->antihorario.setPosition( 150.0f, 20.0f );
+    this->antihorario.setPosition(730, 30);
     this->antihorario.setTexture(controle[2]);
 
-    this->funcao1.setPosition( 200.0f, 20.0f );
+    this->funcao1.setPosition( 630, 80 );
     this->funcao1.setTexture(controle[3]);
 
-    this->funcao2.setPosition( 250.0f, 20.0f );
+    this->funcao2.setPosition( 675, 80 );
     this->funcao2.setTexture(controle[4]);
 
-    this->pegar.setPosition( 300.0f, 20.0f );
+    this->pegar.setPosition( 730.0f, 80 );
     this->pegar.setTexture(controle[5]);
 
 }
@@ -316,6 +325,7 @@ void Jogo::movimentarPersonagem(sf::RenderWindow &App){
 }
 
 void Jogo::desenharJogo(sf::RenderWindow &App){
+    App.draw(this->painel);
     this->desenharMapaAtual(App);
     this->desenharOpcoesControle(App);
     this->movimentarPersonagem(App);

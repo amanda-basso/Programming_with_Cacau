@@ -36,8 +36,6 @@ Menu::Menu() {
     this->back.setString("Continue");
     this->instrucoes.setFont(this->font);
     this->instrucoes.setString("Instructions");
-    this->introducao.setFont(this->font);
-    this->introducao.setString("Back to Intro");
     this->quit.setFont(this->font);
     this->quit.setString("Exit");
 }
@@ -51,7 +49,7 @@ int Menu::Run(sf::RenderWindow &App) {
     int opt = 0;
 
     this->sound.setLoop(true); /* sound loop */
-    this->sound.play(); /* play music */
+    //this->sound.play(); /* play music */
 
 	while (true) {
 
@@ -78,24 +76,15 @@ int Menu::Run(sf::RenderWindow &App) {
 				    //se for a tecla pra cima
 					case sf::Keyboard::Up:
 
-                            opt = (opt > 0)? --opt : opt = 3;
-                            //se estiverem jogando (estado pausa)
-                            //não haverá a opção intro (opcao 1)
-                            if(this->playing && opt == 1){
-                                opt--;
-                            }
+                            opt = (opt > 0)? --opt : opt = 2;
 
                         break;
 
                     //se for a tecla pra baixo
 					case sf::Keyboard::Down:
 
-                        opt = (opt < 3)? ++opt : opt = 0;
-                        //se estiverem jogando (estado pausa)
-                        //não haverá a opção intro (opcao 1)
-                        if(this->playing && opt == 1){
-                            opt++;
-                        }
+                        opt = (opt < 2)? ++opt : opt = 0;
+
                         break;
 
                     //se for a tecla esc
@@ -114,9 +103,6 @@ int Menu::Run(sf::RenderWindow &App) {
 							    //tela de instruções
 								return INSTRUCAO;
 							case 2:
-							    //tela de introdução
-                               return INTRO;
-							case 3:
 							    //sair
 								return SAIR;
 							default:
@@ -136,15 +122,11 @@ int Menu::Run(sf::RenderWindow &App) {
 
                 this->play.setColor(sf::Color(253, 206, 220, 255));
                 this->play.setCharacterSize(110);
-                this->play.setPosition({240.f, 60.f});
+                this->play.setPosition({240.f, 150.f});
 
                 this->back.setColor(sf::Color(253, 206, 220, 255));
                 this->back.setCharacterSize(110);
                 this->back.setPosition(100,150);
-
-                this->introducao.setColor(sf::Color(162, 132, 140, 255));
-                this->introducao.setCharacterSize(60);
-                this->introducao.setPosition({170.f, 200.f});
 
                 this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
                 this->instrucoes.setCharacterSize(60);
@@ -155,39 +137,15 @@ int Menu::Run(sf::RenderWindow &App) {
                 this->quit.setPosition({335.f, 400.f});
 
 			break;
+
 			case 1:
-				this->play.setColor(sf::Color(162, 132, 140, 255));
-				this->play.setCharacterSize(60);
-				this->play.setPosition({315.f, 100.f});
-
-				this->back.setColor(sf::Color(162, 132, 140, 255));
-				this->back.setCharacterSize(60);
-				this->back.setPosition({240.f, 180.f});
-
-				this->introducao.setColor(sf::Color(253, 206, 220, 255));
-				this->introducao.setCharacterSize(85);
-				this->introducao.setPosition({70.f, 180.f});
-
-				this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
-				this->instrucoes.setCharacterSize(60);
-				this->instrucoes.setPosition({170.f, 300.f});
-
-				this->quit.setColor(sf::Color(162, 132, 140, 255));
-				this->quit.setCharacterSize(60);
-				this->quit.setPosition({335.f, 400.f});
-			break;
-			case 2:
                 this->play.setColor(sf::Color(162, 132, 140, 255));
                 this->play.setCharacterSize(60);
-                this->play.setPosition({315.f, 100.f});
+                this->play.setPosition({315.f, 200.f});
 
                 this->back.setColor(sf::Color(162, 132, 140, 255));
                 this->back.setCharacterSize(60);
                 this->back.setPosition({240.f, 200.f});
-
-                this->introducao.setColor(sf::Color(162, 132, 140, 255));
-                this->introducao.setCharacterSize(60);
-                this->introducao.setPosition({170.f, 200.f});
 
                 this->instrucoes.setColor(sf::Color(253, 206, 220, 255));
                 this->instrucoes.setCharacterSize(85);
@@ -197,18 +155,14 @@ int Menu::Run(sf::RenderWindow &App) {
                 this->quit.setCharacterSize(60);
                 this->quit.setPosition({335.f, 400.f});
 			break;
-			case 3:
+			case 2:
 				this->play.setColor(sf::Color(162, 132, 140, 255));
 				this->play.setCharacterSize(60);
-				this->play.setPosition({315.f, 100.f});
+				this->play.setPosition({315.f, 200.f});
 
 				this->back.setColor(sf::Color(162, 132, 140, 255));
 				this->back.setCharacterSize(60);
 				this->back.setPosition({240.f, 200.f});
-
-				this->introducao.setColor(sf::Color(162, 132, 140, 255));
-				this->introducao.setCharacterSize(60);
-				this->introducao.setPosition({170.f, 200.f});
 
 				this->instrucoes.setColor(sf::Color(162, 132, 140, 255));
 				this->instrucoes.setCharacterSize(60);
@@ -233,7 +187,6 @@ int Menu::Run(sf::RenderWindow &App) {
 			App.draw(this->back);
 		} else {
 			App.draw(this->play);
-			App.draw(this->introducao);
 		}
 
 		App.draw(this->instrucoes);
