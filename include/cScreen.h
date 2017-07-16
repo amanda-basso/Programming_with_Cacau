@@ -4,9 +4,9 @@
 #include <SFML/Graphics.hpp>
 
 #define SAIR -1
-#define MENU 0
-#define GAME 1
-#define INSTRUCAO 2
+#define INSTRUCAO 0
+#define MENU 1
+#define GAME 2
 #define VITORIA 3
 #define ERRO 4
 

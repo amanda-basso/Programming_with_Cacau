@@ -31,9 +31,6 @@
 #include "Lista.h"
 #include "Node.h"
 
-//#include "../src/Lista.cpp"
-
-
 using namespace std;
 
 template <class T>
@@ -55,10 +52,14 @@ int main(int argc, char** argv) {
 
 	//vetor de ponteiros de telas
 	std::vector<Telas*> listaTelas;
-	int telaAtual = MENU;
+	int telaAtual = INSTRUCAO;
 
 	sf::RenderWindow App(sf::VideoMode(800, 600), "Cacaumming");
 	App.setFramerateLimit(30);
+
+    //opcao 3
+	Instrucao a;
+	listaTelas.push_back(&a);
 
     //opcao 1
 	Menu b;
@@ -68,17 +69,13 @@ int main(int argc, char** argv) {
 	Jogo c;
 	listaTelas.push_back(&c);
 
-	//opcao 3
-	Instrucao d;
+	//opcao 4
+	Vitoria d;
 	listaTelas.push_back(&d);
 
-	//opcao 4
-	Vitoria e;
-	listaTelas.push_back(&e);
-
 	//opcao 5
-	Erro f;
-	listaTelas.push_back(&f);
+	Erro e;
+	listaTelas.push_back(&e);
 
 	//Main loop
 	while (telaAtual >= 0){

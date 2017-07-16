@@ -49,7 +49,7 @@ int Vitoria::Run(sf::RenderWindow &App) {
 				switch (Event.key.code) {
 
                     case sf::Keyboard::Return:
-                        return (-1);
+                        return SAIR;
 
                     default:
                         break;
@@ -66,5 +66,5 @@ int Vitoria::Run(sf::RenderWindow &App) {
 		App.display();
 	}
 
-	return (-1);
+	return SAIR;
 }

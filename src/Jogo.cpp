@@ -5,7 +5,7 @@ Jogo::Jogo() {
     this->fase = 1;
 
     /*********** PAINEL *******************/
-    if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.png")){
+    if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.jpg")){
          std::cerr << "Error loading painel" << std::endl;
     }
 
@@ -137,11 +137,6 @@ int Jogo::Run(sf::RenderWindow &App) {
 					case sf::Keyboard::Escape:
 						return MENU;
                         break;
-
-                    //se for a tecla enter
-					case sf::Keyboard::Return:
-                        break;
-
 					default:
                         break;
 				}
@@ -260,13 +255,22 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                 if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(SEGUIR);
+
+                            //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(SEGUIR);
                     } else {
                         if (event.mouseButton.button == sf::Mouse::Middle) {
-                            this->pilhafuncao1.Insere(SEGUIR);
+
+                            //número máximo de comandos
+                            if(this->pilhafuncao1.getTamanho() < 10)
+                                this->pilhafuncao1.Insere(SEGUIR);
                         } else{
                             if (event.mouseButton.button == sf::Mouse::Right) {
-                                this->pilhafuncao2.Insere(SEGUIR);
+
+                                //número máximo de comandos
+                                if(this->pilhafuncao2.getTamanho() < 10)
+                                    this->pilhafuncao2.Insere(SEGUIR);
                             }
                         }
                     }
@@ -276,12 +280,21 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                     std::cout << "horario" << std::endl;
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(HORARIO);
+                        //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(HORARIO);
                     } else {
+
                         if (event.mouseButton.button == sf::Mouse::Middle) {
-                            this->pilhafuncao1.Insere(HORARIO);
+                            //número máximo de comandos
+                            if(this->pilhafuncao1.getTamanho() < 10)
+                                this->pilhafuncao1.Insere(HORARIO);
                         } else{
+
                             if (event.mouseButton.button == sf::Mouse::Right) {
+
+                                //número máximo de comandos
+                            if(this->pilhafuncao2.getTamanho() < 10)
                                 this->pilhafuncao2.Insere(HORARIO);
                             }
                         }
@@ -292,13 +305,19 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                     std::cout << "antihorario" << std::endl;
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(ANTIHORARIO);
+                        //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(ANTIHORARIO);
                     } else {
+
                         if (event.mouseButton.button == sf::Mouse::Middle) {
-                            this->pilhafuncao1.Insere(ANTIHORARIO);
+                            if(this->pilhafuncao1.getTamanho() < 10)
+                                this->pilhafuncao1.Insere(ANTIHORARIO);
                         } else{
+
                             if (event.mouseButton.button == sf::Mouse::Right) {
-                                this->pilhafuncao2.Insere(ANTIHORARIO);
+                                if(this->pilha.getTamanho() < 10)
+                                    this->pilhafuncao1.Insere(ANTIHORARIO);
                             }
                         }
                     }
@@ -308,7 +327,9 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                     std::cout << "funcao 1" << std::endl;
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(FUNCAO1);
+                        //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(ANTIHORARIO);
                     }
                 }
 
@@ -316,7 +337,9 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                     std::cout << "funcao 2" << std::endl;
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(FUNCAO2);
+                        //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(ANTIHORARIO);
                     }
                 }
 
@@ -324,14 +347,23 @@ int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
                     std::cout << "pegar 2" << std::endl;
 
                     if (event.mouseButton.button == sf::Mouse::Left) {
-                        this->pilha.Insere(PEGAR);
+                        //número máximo de comandos
+                        if(this->pilha.getTamanho() < 30)
+                            this->pilha.Insere(ANTIHORARIO);
+
                     } else {
+
                         if (event.mouseButton.button == sf::Mouse::Middle) {
-                            this->pilhafuncao1.Insere(PEGAR);
-                        } else{
-                            if (event.mouseButton.button == sf::Mouse::Right) {
-                                this->pilhafuncao2.Insere(PEGAR);
-                            }
+
+                                //número máximo de comandos
+                            if(this->pilhafuncao1.getTamanho() < 10)
+                                this->pilhafuncao1.Insere(PEGAR);
+                            } else{
+
+                                if (event.mouseButton.button == sf::Mouse::Right) {
+                                    if(this->pilhafuncao2.getTamanho() < 10)
+                                        this->pilhafuncao2.Insere(PEGAR);
+                                }
                         }
                     }
                 }

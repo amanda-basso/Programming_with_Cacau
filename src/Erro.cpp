@@ -65,5 +65,5 @@ int Erro::Run(sf::RenderWindow &App) {
 		App.display();
 	}
 
-	return (-1);
+	return SAIR;
 }

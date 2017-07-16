@@ -116,7 +116,7 @@
 1493668011 source:a:\jogo 2\src\cscreen.cpp
 	"cScreen.h"
 
-1500229217 a:\jogo 2\include\cscreen.h
+1500242356 a:\jogo 2\include\cscreen.h
 	<SFML/Graphics.hpp>
 
 1486736397 c:\program files (x86)\codeblocks\sfml\include\sfml\graphics.hpp
@@ -412,16 +412,16 @@
 	<string>
 	<vector>
 
-1499873002 source:a:\jogo 2\src\instrucao.cpp
+1500242233 source:a:\jogo 2\src\instrucao.cpp
 	"Instrucao.h"
 
-1499864543 a:\jogo 2\include\instrucao.h
+1500240582 a:\jogo 2\include\instrucao.h
 	<iostream>
 	"cScreen.h"
 	<string>
 	<SFML/Graphics.hpp>
 
-1500232207 source:a:\jogo 2\src\jogo.cpp
+1500242177 source:a:\jogo 2\src\jogo.cpp
 	"Jogo.h"
 
 1500232219 a:\jogo 2\include\jogo.h
@@ -577,7 +577,7 @@
 1499936662 source:a:\jogo 2\src\node.cpp
 	"Node.h"
 
-1500237793 source:a:\jogo 2\src\vitoria.cpp
+1500242244 source:a:\jogo 2\src\vitoria.cpp
 	"Vitoria.h"
 
 1495122145 a:\jogo 2\include\vitoria.h
@@ -587,7 +587,7 @@
 	<SFML/Graphics.hpp>
 	<SFML/Audio.hpp>
 
-1500230490 source:a:\jogo 2\main.cpp
+1500241811 source:a:\jogo 2\main.cpp
 	<iostream>
 	<SFML/Graphics.hpp>
 	<ctime>
@@ -603,7 +603,7 @@
 1495105148 source:a:\jogo 2\src\pilha.cpp
 	"Pilha.h"
 
-1500237924 source:a:\jogo 2\src\erro.cpp
+1500242255 source:a:\jogo 2\src\erro.cpp
 	"Erro.h"
 
 1500230423 a:\jogo 2\include\erro.h

@@ -12,10 +12,6 @@ class Instrucao: public Telas{
 
     private:
 
-        int alpha_max;
-        int alpha_div;
-        bool playing;
-
     public:
         Instrucao();
         virtual int Run(sf::RenderWindow &App);
