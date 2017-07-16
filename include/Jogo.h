@@ -46,6 +46,9 @@
 #define OBJ4 8
 #define OBJ5 9
 
+#define POS_INICIAL_X 270
+#define POS_INICIAL_Y 285
+
 #define SEGUIR 0
 #define HORARIO 1
 #define ANTIHORARIO 2
@@ -105,6 +108,7 @@ class Jogo : public Telas {
         int mapaAtual[LINHAS_X][LINHAS_Y];
         int fase;
         int sentido;
+        bool movimento;
 
         //método que redesenha o jogo durante o loop
         void desenharJogo(sf::RenderWindow &App);

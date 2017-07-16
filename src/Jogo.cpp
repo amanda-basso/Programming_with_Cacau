@@ -65,10 +65,10 @@ Jogo::Jogo(int fase) {
     this->currentAnimation = &walkingAnimationDown;
 
     this->animatedSprite = AnimatedSprite(sf::seconds(0.04), true, false);
-    this->animatedSprite.setPosition(270,285);
+    this->animatedSprite.setPosition(POS_INICIAL_X, POS_INICIAL_Y);
 
     this->speed = 1.f;
-    this->noKeyWasPressed = true;
+    this->movimento = false;
 
 
     /************* BOTOES ***************/
@@ -447,17 +447,27 @@ void Jogo::desenharFilaControleF2(sf::RenderWindow &App){
 
 /******** PERSONAGEM *********/
 
-void Jogo::desenharJogador(sf::RenderWindow &App, bool movimento){
+void Jogo::desenharJogador(sf::RenderWindow &App, bool executarMovimentos){
     /* pilha auxiliar para executar */
 
-    if(movimento){
-        this->movimentarPersonagem(App, this->pilha);
-    }else{
-        animatedSprite.play(*currentAnimation);
+    //se o personagem já não estiver se movimentando, através do método movimentarPersonagem
+    if(!this->movimento){
 
-        animatedSprite.stop();
-        App.draw(animatedSprite);
+         //se a função for chamada pra mostrar o jogador se movimentando
+         if(executarMovimentos){
+            this->movimento = true;
+            this->animatedSprite.setPosition(POS_INICIAL_X,POS_INICIAL_Y);
+            this->movimentarPersonagem(App, this->pilha);
+            this->movimento = false;
+        } else{
+            //se a funcao for chamada pra mostrar o jogador no mapa, apenas
+            animatedSprite.play(*currentAnimation);
+
+            animatedSprite.stop();
+            App.draw(animatedSprite);
+        }
     }
+
 }
 
 void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
@@ -474,40 +484,117 @@ void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
 	}
 	cout << " --- " << endl;
 
+    while (!paux.EstaVazia()) {
+        paux.Retira(aux2);
+        pilha.Insere(aux2);
+        cout << "Nro: " << paux.getTamanho()+1 << " Item " << aux2 << " --- ";
 
-    // set up AnimatedSprite
-    this->animatedSprite.setPosition(0,0);
-
-    sf::Clock frameClock;
-
-    while (true) {
-
-        // if a key was pressed set the correct animation and move correctly
+        noKeyWasPressed = false;
         sf::Vector2f movement(0.f, 0.f);
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-            currentAnimation = &walkingAnimationUp;
-            movement.y -= this->speed;
-            noKeyWasPressed = false;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-            currentAnimation = &walkingAnimationDown;
-            movement.y += this->speed;
-            noKeyWasPressed = false;
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-            currentAnimation = &walkingAnimationLeft;
-            movement.x -= this->speed;
-            noKeyWasPressed = false;
-        }
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-            currentAnimation = &walkingAnimationRight;
-            movement.x += this->speed;
-            noKeyWasPressed = false;
-        }
 
+        switch(aux2){
+            case SEGUIR:
+                    cout << "Comando: seguir" <<endl;
+                    noKeyWasPressed = true; //mudar o local da variavel
+
+                    switch(this->sentido){
+                        //pra cima
+                        case 0:
+                            movement.y -= speed;
+                            break;
+                        //esquerda
+                        case 1:
+                            movement.x -= speed;
+                            break;
+                        //pra baixo
+                        case 2:
+                            movement.y += speed;
+                            break;
+                        //pra direita
+                        case 3:
+                            movement.x += speed;
+                            break;
+                    }
+                break;
+
+            case HORARIO:
+                cout << "Comando: horario" <<endl;
+
+                if(this->sentido > 0){
+                    this->sentido--;
+                } else{
+                    this->sentido = 3;
+                }
+
+                switch(this->sentido){
+                    //pra cima
+                    case 0:
+                        currentAnimation = &walkingAnimationUp;
+                        break;
+                    //esquerda
+                    case 1:
+                        currentAnimation = &walkingAnimationLeft;
+                        break;
+                    //pra baixo
+                    case 2:
+                        currentAnimation = &walkingAnimationDown;
+                        break;
+                    //pra direita
+                    case 3:
+                        currentAnimation = &walkingAnimationRight;
+                        break;
+                }
+                break;
+
+            case ANTIHORARIO:
+
+                if(this->sentido < 3){
+                    this->sentido++;
+                } else{
+                    this->sentido = 0;
+                }
+
+                switch(sentido){
+                    //pra cima
+                    case 0:
+                        currentAnimation = &walkingAnimationUp;
+                        break;
+                    //esquerda
+                    case 1:
+                        currentAnimation = &walkingAnimationLeft;
+                        break;
+                    //pra baixo
+                    case 2:
+                        currentAnimation = &walkingAnimationDown;
+                        break;
+                    //pra direita
+                    case 3:
+                        currentAnimation = &walkingAnimationRight;
+                        break;
+                }
+                break;
+
+            case FUNCAO1:
+                cout << "Comando: f1" <<endl;
+
+                this->movimentarPersonagem(App, this->pilhafuncao1);
+                break;
+
+            case FUNCAO2:
+                cout << "Comando: f2" <<endl;
+
+                this->movimentarPersonagem(App, this->pilhafuncao2);
+                break;
+
+            case PEGAR:
+                cout << "Comando: pegar" <<endl;
+
+                break;
+
+        }
 
         // if no key was pressed stop the animation
-        if (noKeyWasPressed) {
+        if (!noKeyWasPressed) {
             sf::Time frameTime = frameClock.restart();
 
             this->animatedSprite.play(*currentAnimation);
@@ -516,30 +603,33 @@ void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
 
             // draw
             App.clear();
+            this->desenharJogo(App);
             App.draw(this->animatedSprite);
             App.display();
 
         }else{
 
             for(int i = 0; i < 30;i++){
-                Sleep(100);
+                Sleep(75);
                 this->animatedSprite.play(*currentAnimation);
 
                 sf::Time frameTime = frameClock.restart();
 
+
                 this->animatedSprite.move(movement);
-                this->animatedSprite.update(frameTime);
+                this->animatedSprite.update(sf::seconds(0.4f));
 
                 cout <<"("<<this->animatedSprite.getPosition().x << ", "<<this->animatedSprite.getPosition().y << ")"<< endl;
 
                 // draw
                 App.clear();
+                this->desenharJogo(App);
                 App.draw(this->animatedSprite);
                 App.display();
             }
         }
 
-        noKeyWasPressed = true;
+        noKeyWasPressed = false;
     }
 }
 
