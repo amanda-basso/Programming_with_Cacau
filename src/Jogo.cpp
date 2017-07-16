@@ -1,8 +1,8 @@
 #include "Jogo.h"
 
-Jogo::Jogo(int fase) {
+Jogo::Jogo() {
 
-
+    this->fase = 1;
 
     /*********** PAINEL *******************/
     if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.png")){
@@ -17,7 +17,7 @@ Jogo::Jogo(int fase) {
     if (!this->itens[CONCRETO].loadFromFile("bin/Release/files/images/jogo/concreto.png")
         || !this->itens[GRAMA].loadFromFile("bin/Release/files/images/jogo/grama.png")
         || !this->itens[PEDRA].loadFromFile("bin/Release/files/images/jogo/pedra.jpg")
-        || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/grama.png")
+        || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/agua.png")
         || !this->itens[PAREDE].loadFromFile("bin/Release/files/images/jogo/parede.png")
         || !this->itens[OBJ1].loadFromFile("bin/Release/files/images/jogo/obj1.png")
         || !this->itens[OBJ2].loadFromFile("bin/Release/files/images/jogo/obj2.png")
@@ -30,8 +30,6 @@ Jogo::Jogo(int fase) {
 
 
     /************* Personagem ***************/
-
-    this->sentido = 2;
 
     if (!texture.loadFromFile("bin/Release/files/images/jogo/player.png")) {
          std::cerr << "Error loading personagem" << std::endl;
@@ -62,23 +60,27 @@ Jogo::Jogo(int fase) {
     this->walkingAnimationUp.addFrame(sf::IntRect(32, 96, 32, 32));
     this->walkingAnimationUp.addFrame(sf::IntRect( 0, 96, 32, 32));
 
-    this->currentAnimation = &walkingAnimationDown;
-
     this->animatedSprite = AnimatedSprite(sf::seconds(0.04), true, false);
-    this->animatedSprite.setPosition(POS_INICIAL_X, POS_INICIAL_Y);
 
     this->speed = 1.f;
     this->movimento = false;
 
+    this->sentido = 2;
+    this->currentAnimation = &walkingAnimationDown;
+    this->animatedSprite.setPosition(POS_INICIAL_X,POS_INICIAL_Y);
+
+    animatedSprite.play(*currentAnimation);
+    animatedSprite.stop();
+
 
     /************* BOTOES ***************/
 
-    if (!this->controle[SEGUIR].loadFromFile("bin/Release/files/images/jogo/seguir2.png")
-        ||!this->controle[HORARIO].loadFromFile("bin/Release/files/images/jogo/horario2.png")
-        ||!this->controle[ANTIHORARIO].loadFromFile("bin/Release/files/images/jogo/antihorario2.png")
+    if (!this->controle[SEGUIR].loadFromFile("bin/Release/files/images/jogo/seguir.png")
+        ||!this->controle[HORARIO].loadFromFile("bin/Release/files/images/jogo/horario.png")
+        ||!this->controle[ANTIHORARIO].loadFromFile("bin/Release/files/images/jogo/antihorario.png")
         ||!this->controle[FUNCAO1].loadFromFile("bin/Release/files/images/jogo/f2.png")
         ||!this->controle[FUNCAO2].loadFromFile("bin/Release/files/images/jogo/g2.png")
-        ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar2.png")
+        ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar.png")
         ||!this->controle[LIMPAR].loadFromFile("bin/Release/files/images/jogo/limpar.png")
         ||!this->controle[EXECUTAR].loadFromFile("bin/Release/files/images/jogo/executar.png")
         ){
@@ -113,13 +115,14 @@ Jogo::Jogo(int fase) {
 
 int Jogo::Run(sf::RenderWindow &App) {
     //evento do teclado
+    int executar = 0;
     sf::Event event;
 
-    this->carregarMapaAtual(App, 1);
+    this->carregarMapaAtual(App, this->fase);
 
     while (true){
 
-        while ( App.pollEvent( event ) ){
+        while (App.pollEvent( event )){
 
             //se a janela fechar
 			if (event.type == sf::Event::Closed)
@@ -145,7 +148,18 @@ int Jogo::Run(sf::RenderWindow &App) {
 			}
 
 			//executo as operações necessárias com o botão
-			this->funcionalidadeBotao(App, event);
+			executar = this->funcionalidadeBotao(App, event);
+
+			//se houver algum erro ou vitória
+			if(executar != GAME){
+                return executar;
+			}
+        }
+
+
+        //Acabaram as fases
+        if(this->fase > NUMERO_FASES){
+            return VITORIA;
         }
 
         App.clear();
@@ -159,188 +173,220 @@ int Jogo::Run(sf::RenderWindow &App) {
 
 
 /****** EXECUCAO *********/
- void Jogo::executarFilaControle(sf::RenderWindow &App){
-     this->desenharJogador(App, true);
+ int Jogo::executarFilaControle(sf::RenderWindow &App){
+     int fase = this->fase;
+     bool sucesso = this->observarJogador(App, true);
+
+     if(!sucesso){
+        //se houver algum erro nos comandos
+        return ERRO;
+     }else{
+
+         //se avançar de fase, mudo o mapa
+         if(fase != this->fase){
+
+                //se houver mais fases
+                if(this->fase <= NUMERO_FASES){
+                    //carrego a próxima
+                    this->carregarMapaAtual(App, this->fase);
+                }else{
+                    //vou para a tela de vitória
+                    return VITORIA;
+                }
+         }
+     }
+
+     //continuo no jogo
+     return GAME;
  }
 
 
 /***** BOTOES *****/
 
-void Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
+int Jogo::funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event){
+    int operacao = GAME;
+    if(!this->movimento)
+        switch (event.type) {
 
-    switch (event.type) {
+            //se o mouse mover
+            case sf::Event::MouseMoved: {
 
-        //se o mouse mover
-        case sf::Event::MouseMoved: {
+                sf::Vector2i mousePos = sf::Mouse::getPosition( App );
+                sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
 
-            sf::Vector2i mousePos = sf::Mouse::getPosition( App );
-            sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
-
-            if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
-                this->seguir.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->seguir.setColor( sf::Color( 255, 255, 255 ) );
-            }
-
-            if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
-                this->horario.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->horario.setColor( sf::Color( 255, 255, 255 ) );
-            }
-
-            if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
-                this->antihorario.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->antihorario.setColor( sf::Color( 255, 255, 255 ) );
-            }
-
-            if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
-                this->funcao1.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->funcao1.setColor( sf::Color( 255, 255, 255 ) );
-            }
-
-            if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
-                this->funcao2.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->funcao2.setColor( sf::Color( 255, 255, 255 ) );
-            }
-
-            if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
-                this->pegar.setColor( sf::Color( 250, 20, 20 ) );
-            } else {
-                this->pegar.setColor( sf::Color( 255, 255, 255 ) );
-            }
-            break;
-        }
-
-        case sf::Event::MouseButtonPressed: {
-
-            sf::Vector2i mousePos = sf::Mouse::getPosition( App );
-            sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
-
-            if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
-
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(SEGUIR);
+                if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
+                    this->seguir.setColor( sf::Color( 250, 20, 20 ) );
                 } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(SEGUIR);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(SEGUIR);
+                    this->seguir.setColor( sf::Color( 255, 255, 255 ) );
+                }
+
+                if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
+                    this->horario.setColor( sf::Color( 250, 20, 20 ) );
+                } else {
+                    this->horario.setColor( sf::Color( 255, 255, 255 ) );
+                }
+
+                if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
+                    this->antihorario.setColor( sf::Color( 250, 20, 20 ) );
+                } else {
+                    this->antihorario.setColor( sf::Color( 255, 255, 255 ) );
+                }
+
+                if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
+                    this->funcao1.setColor( sf::Color( 250, 20, 20 ) );
+                } else {
+                    this->funcao1.setColor( sf::Color( 255, 255, 255 ) );
+                }
+
+                if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
+                    this->funcao2.setColor( sf::Color( 250, 20, 20 ) );
+                } else {
+                    this->funcao2.setColor( sf::Color( 255, 255, 255 ) );
+                }
+
+                if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
+                    this->pegar.setColor( sf::Color( 250, 20, 20 ) );
+                } else {
+                    this->pegar.setColor( sf::Color( 255, 255, 255 ) );
+                }
+                break;
+            }
+
+            case sf::Event::MouseButtonPressed: {
+
+                sf::Vector2i mousePos = sf::Mouse::getPosition( App );
+                sf::Vector2f mousePosF( static_cast<float>( mousePos.x ), static_cast<float>( mousePos.y ) );
+
+                if (this->seguir.getGlobalBounds().contains( mousePosF ) ) {
+
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(SEGUIR);
+                    } else {
+                        if (event.mouseButton.button == sf::Mouse::Middle) {
+                            this->pilhafuncao1.Insere(SEGUIR);
+                        } else{
+                            if (event.mouseButton.button == sf::Mouse::Right) {
+                                this->pilhafuncao2.Insere(SEGUIR);
+                            }
                         }
                     }
                 }
-            }
 
-            if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "horario" << std::endl;
+                if (this->horario.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "horario" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(HORARIO);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(HORARIO);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(HORARIO);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(HORARIO);
+                    } else {
+                        if (event.mouseButton.button == sf::Mouse::Middle) {
+                            this->pilhafuncao1.Insere(HORARIO);
+                        } else{
+                            if (event.mouseButton.button == sf::Mouse::Right) {
+                                this->pilhafuncao2.Insere(HORARIO);
+                            }
                         }
                     }
                 }
-            }
 
-            if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "antihorario" << std::endl;
+                if (this->antihorario.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "antihorario" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(ANTIHORARIO);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(ANTIHORARIO);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(ANTIHORARIO);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(ANTIHORARIO);
+                    } else {
+                        if (event.mouseButton.button == sf::Mouse::Middle) {
+                            this->pilhafuncao1.Insere(ANTIHORARIO);
+                        } else{
+                            if (event.mouseButton.button == sf::Mouse::Right) {
+                                this->pilhafuncao2.Insere(ANTIHORARIO);
+                            }
                         }
                     }
                 }
-            }
 
-            if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "funcao 1" << std::endl;
+                if (this->funcao1.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "funcao 1" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(FUNCAO1);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(FUNCAO1);
+                    }
                 }
-            }
 
-            if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "funcao 2" << std::endl;
+                if (this->funcao2.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "funcao 2" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(FUNCAO2);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(FUNCAO2);
+                    }
                 }
-            }
 
-            if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "pegar 2" << std::endl;
+                if (this->pegar.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "pegar 2" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    this->pilha.Insere(PEGAR);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
-                        this->pilhafuncao1.Insere(PEGAR);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
-                            this->pilhafuncao2.Insere(PEGAR);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                        this->pilha.Insere(PEGAR);
+                    } else {
+                        if (event.mouseButton.button == sf::Mouse::Middle) {
+                            this->pilhafuncao1.Insere(PEGAR);
+                        } else{
+                            if (event.mouseButton.button == sf::Mouse::Right) {
+                                this->pilhafuncao2.Insere(PEGAR);
+                            }
                         }
                     }
                 }
-            }
 
-            if (this->limpar.getGlobalBounds().contains( mousePosF ) ) {
-                std::cout << "limpar" << std::endl;
+                if (this->limpar.getGlobalBounds().contains( mousePosF ) ) {
+                    std::cout << "limpar" << std::endl;
 
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                    int ultimo;
-                    this->pilha.Retira(ultimo);
-                } else {
-                    if (event.mouseButton.button == sf::Mouse::Middle) {
+                    if (event.mouseButton.button == sf::Mouse::Left) {
                         int ultimo;
-                        this->pilhafuncao1.Retira(ultimo);
-                    } else{
-                        if (event.mouseButton.button == sf::Mouse::Right) {
+                        this->pilha.Retira(ultimo);
+                    } else {
+                        if (event.mouseButton.button == sf::Mouse::Middle) {
                             int ultimo;
-                            this->pilhafuncao2.Retira(ultimo);
+                            this->pilhafuncao1.Retira(ultimo);
+                        } else{
+                            if (event.mouseButton.button == sf::Mouse::Right) {
+                                int ultimo;
+                                this->pilhafuncao2.Retira(ultimo);
+                            }
                         }
                     }
                 }
-            }
 
-            if (this->executar.getGlobalBounds().contains( mousePosF ) ) {
+                if (this->executar.getGlobalBounds().contains( mousePosF ) ) {
 
-
-                if (event.mouseButton.button == sf::Mouse::Left) {
-                     std::cout << "EXECUTAR" << std::endl;
-                     this->executarFilaControle(App);
+                    if (event.mouseButton.button == sf::Mouse::Left) {
+                         std::cout << "EXECUTAR" << std::endl;
+                         //retorno o resultado obtido do comando
+                         operacao = this->executarFilaControle(App);
+                    }
                 }
-            }
 
-            break;
+                break;
+            }
         }
-    }
+
+        return operacao;
 }
 
 void Jogo::desenharOpcoesControle(sf::RenderWindow &App){
-    //desenho os botões
-    App.draw(seguir);
-    App.draw(horario);
-    App.draw(antihorario);
-    App.draw(funcao1);
-    App.draw(funcao2);
-    App.draw(pegar);
-    App.draw(limpar);
-    App.draw(executar);
+
+    if(!this->movimento){
+        //desenho os botões
+        App.draw(seguir);
+        App.draw(horario);
+        App.draw(antihorario);
+        App.draw(funcao1);
+        App.draw(funcao2);
+        App.draw(pegar);
+
+        App.draw(limpar);
+        App.draw(executar);
+    }
+
+
 }
 
 void Jogo::desenharFilaControle(sf::RenderWindow &App){
@@ -447,18 +493,47 @@ void Jogo::desenharFilaControleF2(sf::RenderWindow &App){
 
 /******** PERSONAGEM *********/
 
-void Jogo::desenharJogador(sf::RenderWindow &App, bool executarMovimentos){
-    /* pilha auxiliar para executar */
+void Jogo::resetarJogador(sf::RenderWindow &App){
+    this->animatedSprite.setPosition(POS_INICIAL_X,POS_INICIAL_Y);
+    this->sentido = 2;
+    this->currentAnimation = &walkingAnimationDown;
+
+    animatedSprite.play(*currentAnimation);
+    animatedSprite.stop();
+    App.draw(animatedSprite);
+    Sleep(200);
+}
+
+bool Jogo::observarJogador(sf::RenderWindow &App, bool executarMovimentos){
+    bool sucesso = true;
 
     //se o personagem já não estiver se movimentando, através do método movimentarPersonagem
     if(!this->movimento){
 
          //se a função for chamada pra mostrar o jogador se movimentando
          if(executarMovimentos){
+             //carrego a fase atual
+            this->carregarMapaAtual(App, this->fase);
+            this->resetarJogador(App);
             this->movimento = true;
-            this->animatedSprite.setPosition(POS_INICIAL_X,POS_INICIAL_Y);
-            this->movimentarPersonagem(App, this->pilha);
+
+            if(this->movimentarPersonagem(App, this->pilha)){
+
+                //se o usuario tiver pegado todos os itens do mapa
+                if(this->numeroItensMapa() == 0){
+                    cout << this->numeroItensMapa()<< endl;
+                    this->fase++;
+                }
+                else{
+                    sucesso = false;
+                }
+            }
+            else{
+                sucesso = false;
+            }
+
             this->movimento = false;
+
         } else{
             //se a funcao for chamada pra mostrar o jogador no mapa, apenas
             animatedSprite.play(*currentAnimation);
@@ -468,169 +543,244 @@ void Jogo::desenharJogador(sf::RenderWindow &App, bool executarMovimentos){
         }
     }
 
+    return sucesso;
 }
 
-void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
+bool Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
 
     Pilha<int> paux;
 
     int aux = -1;
     int aux2 = -1;
+    int x, y;
 
 	while (!pilha.EstaVazia()) {
         pilha.Retira(aux);
 		paux.Insere(aux);
-		cout << "Nro: " <<  pilha.getTamanho()+1 << " Item" << aux << endl;
 	}
-	cout << " --- " << endl;
+
+	//variavel que verificará se o usuário fizer algum caminho errado
+    bool ok = true;
 
     while (!paux.EstaVazia()) {
         paux.Retira(aux2);
         pilha.Insere(aux2);
-        cout << "Nro: " << paux.getTamanho()+1 << " Item " << aux2 << " --- ";
 
-        noKeyWasPressed = false;
-        sf::Vector2f movement(0.f, 0.f);
+        //se o caminho for traçado corretamente e não houver erro
+        if(ok){
+            noKeyWasPressed = false;
+            sf::Vector2f movement(0.f, 0.f);
 
-        switch(aux2){
-            case SEGUIR:
-                    cout << "Comando: seguir" <<endl;
-                    noKeyWasPressed = true; //mudar o local da variavel
+            switch(aux2){
+                case SEGUIR:
+
+                        cout << "Comando: seguir" <<endl;
+                        noKeyWasPressed = true; //mudar o local da variavel
+
+                        switch(this->sentido){
+
+                            //pra cima
+                            case 0:
+                                x = this->descobrirX(this->animatedSprite.getPosition().x);
+                                cout << "Posicao X: " << this->animatedSprite.getPosition().x << ", " << x << endl;
+
+                                y = this->descobrirY(this->animatedSprite.getPosition().y - TAMANHO_ITEM);
+                                cout << "Posicao Y: "<<this->animatedSprite.getPosition().y - TAMANHO_ITEM << ", " << y <<endl;
+
+                                if(!podeSeguir(x,y)){
+                                    cout << "NAO PODE PROSSEGUIR" << endl;
+                                    ok = false;
+                                    continue;
+                                }
+                                movement.y -= speed;
+                                break;
+
+                            //esquerda
+                            case 1:
+                                x = this->descobrirX(this->animatedSprite.getPosition().x - TAMANHO_ITEM);
+                                cout << "Posicao X: " << this->animatedSprite.getPosition().x - TAMANHO_ITEM << ", " << x << endl;
+
+                                y = this->descobrirY(this->animatedSprite.getPosition().y );
+                                cout << "Posicao Y: "<<this->animatedSprite.getPosition().y << ", " << y <<endl;
+
+                                if(!podeSeguir(x,y)){
+                                    cout << "NAO PODE PROSSEGUIR" << endl;
+                                    ok = false;
+                                    continue;
+                                }
+                                movement.x -= speed;
+                                break;
+
+                            //pra baixo
+                            case 2:
+                                x = this->descobrirX(this->animatedSprite.getPosition().x);
+                                cout << "Posicao X: " << this->animatedSprite.getPosition().x << ", " << x << endl;
+
+                                y = this->descobrirY(this->animatedSprite.getPosition().y + TAMANHO_ITEM);
+                                cout << "Posicao Y: "<<this->animatedSprite.getPosition().y + TAMANHO_ITEM << ", " << y <<endl;
+
+                                if(!podeSeguir(x,y)){
+                                    ok = false;
+                                    cout << "NAO PODE PROSSEGUIR" << endl;
+                                    continue;
+                                }
+                                movement.y += speed;
+                                break;
+
+                            //pra direita
+                            case 3:
+
+                                x = this->descobrirX(this->animatedSprite.getPosition().x + TAMANHO_ITEM);
+                                cout << "Posicao X: " << this->animatedSprite.getPosition().x + TAMANHO_ITEM << ", " << x << endl;
+
+                                y = this->descobrirY(this->animatedSprite.getPosition().y );
+                                cout << "Posicao Y: "<<this->animatedSprite.getPosition().y << ", " << y <<endl;
+
+                                if(!podeSeguir(x,y)){
+                                    cout << "NAO PODE PROSSEGUIR" << endl;
+                                    ok = false;
+                                    continue;
+                                }
+                                movement.x += speed;
+                                break;
+                        }
+                    break;
+
+                case HORARIO:
+                    cout << "Comando: horario" <<endl;
+
+                    if(this->sentido > 0){
+                        this->sentido--;
+                    } else{
+                        this->sentido = 3;
+                    }
 
                     switch(this->sentido){
                         //pra cima
                         case 0:
-                            movement.y -= speed;
+                            currentAnimation = &walkingAnimationUp;
                             break;
                         //esquerda
                         case 1:
-                            movement.x -= speed;
+                            currentAnimation = &walkingAnimationLeft;
                             break;
                         //pra baixo
                         case 2:
-                            movement.y += speed;
+                            currentAnimation = &walkingAnimationDown;
                             break;
                         //pra direita
                         case 3:
-                            movement.x += speed;
+                            currentAnimation = &walkingAnimationRight;
                             break;
                     }
-                break;
+                    break;
 
-            case HORARIO:
-                cout << "Comando: horario" <<endl;
+                case ANTIHORARIO:
 
-                if(this->sentido > 0){
-                    this->sentido--;
-                } else{
-                    this->sentido = 3;
-                }
+                    if(this->sentido < 3){
+                        this->sentido++;
+                    } else{
+                        this->sentido = 0;
+                    }
 
-                switch(this->sentido){
-                    //pra cima
-                    case 0:
-                        currentAnimation = &walkingAnimationUp;
-                        break;
-                    //esquerda
-                    case 1:
-                        currentAnimation = &walkingAnimationLeft;
-                        break;
-                    //pra baixo
-                    case 2:
-                        currentAnimation = &walkingAnimationDown;
-                        break;
-                    //pra direita
-                    case 3:
-                        currentAnimation = &walkingAnimationRight;
-                        break;
-                }
-                break;
+                    switch(sentido){
+                        //pra cima
+                        case 0:
+                            currentAnimation = &walkingAnimationUp;
+                            break;
+                        //esquerda
+                        case 1:
+                            currentAnimation = &walkingAnimationLeft;
+                            break;
+                        //pra baixo
+                        case 2:
+                            currentAnimation = &walkingAnimationDown;
+                            break;
+                        //pra direita
+                        case 3:
+                            currentAnimation = &walkingAnimationRight;
+                            break;
+                    }
+                    break;
 
-            case ANTIHORARIO:
+                case FUNCAO1:
+                    cout << "Comando: f1" <<endl;
 
-                if(this->sentido < 3){
-                    this->sentido++;
-                } else{
-                    this->sentido = 0;
-                }
+                    if(!this->movimentarPersonagem(App, this->pilhafuncao1)){
+                        ok = false;
+                        continue;
+                    }
+                    break;
 
-                switch(sentido){
-                    //pra cima
-                    case 0:
-                        currentAnimation = &walkingAnimationUp;
-                        break;
-                    //esquerda
-                    case 1:
-                        currentAnimation = &walkingAnimationLeft;
-                        break;
-                    //pra baixo
-                    case 2:
-                        currentAnimation = &walkingAnimationDown;
-                        break;
-                    //pra direita
-                    case 3:
-                        currentAnimation = &walkingAnimationRight;
-                        break;
-                }
-                break;
+                case FUNCAO2:
+                    cout << "Comando: f2" <<endl;
 
-            case FUNCAO1:
-                cout << "Comando: f1" <<endl;
+                    if(!this->movimentarPersonagem(App, this->pilhafuncao2)){
+                        ok = false;
+                        continue;
+                    }
+                    break;
 
-                this->movimentarPersonagem(App, this->pilhafuncao1);
-                break;
+                case PEGAR:
+                    cout << "Comando: pegar" <<endl;
+                    x = this->descobrirX(this->animatedSprite.getPosition().x);
+                    cout << "Posicao X: " << this->animatedSprite.getPosition().x << ", " << x << endl;
+                    y = this->descobrirY(this->animatedSprite.getPosition().y);
+                    cout << "Posicao Y: "<<this->animatedSprite.getPosition().y << ", " << y <<endl;
+                    this->pegarItem(x,y);
+                    break;
 
-            case FUNCAO2:
-                cout << "Comando: f2" <<endl;
+            }
 
-                this->movimentarPersonagem(App, this->pilhafuncao2);
-                break;
-
-            case PEGAR:
-                cout << "Comando: pegar" <<endl;
-
-                break;
-
-        }
-
-        // if no key was pressed stop the animation
-        if (!noKeyWasPressed) {
-            sf::Time frameTime = frameClock.restart();
-
-            this->animatedSprite.play(*currentAnimation);
-            this->animatedSprite.stop();
-            this->animatedSprite.update(frameTime);
-
-            // draw
-            App.clear();
-            this->desenharJogo(App);
-            App.draw(this->animatedSprite);
-            App.display();
-
-        }else{
-
-            for(int i = 0; i < 30;i++){
-                Sleep(75);
-                this->animatedSprite.play(*currentAnimation);
+            // if no key was pressed stop the animation
+            if (!noKeyWasPressed) {
 
                 sf::Time frameTime = frameClock.restart();
 
-
-                this->animatedSprite.move(movement);
-                this->animatedSprite.update(sf::seconds(0.4f));
-
-                cout <<"("<<this->animatedSprite.getPosition().x << ", "<<this->animatedSprite.getPosition().y << ")"<< endl;
+                this->animatedSprite.play(*currentAnimation);
+                this->animatedSprite.stop();
+                this->animatedSprite.update(frameTime);
 
                 // draw
                 App.clear();
                 this->desenharJogo(App);
                 App.draw(this->animatedSprite);
                 App.display();
-            }
-        }
 
-        noKeyWasPressed = false;
+                Sleep(1000);
+
+            }else{
+
+                for(int i = 0; i < 30;i++){
+                    Sleep(70);
+                    this->animatedSprite.play(*currentAnimation);
+
+                    sf::Time frameTime = frameClock.restart();
+
+
+                    this->animatedSprite.move(movement);
+                    this->animatedSprite.update(sf::seconds(0.4f));
+
+                    //o jogador fez algum movimento que causou a morte dele
+                    if(this->morre(this->descobrirX(this->animatedSprite.getPosition().x),
+                                               this->descobrirY(this->animatedSprite.getPosition().y))){
+                        cout << "MORRE" << endl;
+                        ok = false;
+                    }
+
+                    // draw
+                    App.clear();
+                    this->desenharJogo(App);
+                    App.draw(this->animatedSprite);
+                    App.display();
+                }
+            }
+
+            noKeyWasPressed = false;
+        }
     }
+
+    return ok;
 }
 
 void Jogo::desenharJogo(sf::RenderWindow &App){
@@ -640,23 +790,85 @@ void Jogo::desenharJogo(sf::RenderWindow &App){
     this->desenharFilaControle(App);
     this->desenharFilaControleF1(App);
     this->desenharFilaControleF2(App);
-    this->desenharJogador(App, false);
+    this->observarJogador(App, false);
 }
 
+/************ VERIFICA ITENS ********/
+int Jogo::descobrirX(const float x) const{
+    return (x / TAMANHO_ITEM);
+}
+
+int Jogo::descobrirY(const float y) const{
+    return (y / TAMANHO_ITEM);
+}
+
+bool Jogo::podeSeguir(const int x, const int y) const {
+
+    return (estaNoIntervaloDoMapa(x,y)
+            && this->mapaAtual[y][x] != PEDRA);
+}
+
+bool Jogo::morre(const int x, const int y) const{
+    return this->mapaAtual[y][x] == AGUA;
+}
+
+bool Jogo::ehItemMapa(const int x, const int y) const {
+
+    if(estaNoIntervaloDoMapa(x, y))
+        return  ((this->mapaAtual[y][x] == OBJ1) ||(this->mapaAtual[y][x] == OBJ2)
+                 ||(this->mapaAtual[y][x] == OBJ3) ||(this->mapaAtual[y][x] == OBJ4)
+                 || (this->mapaAtual[y][x] == OBJ5));
+
+    return false;
+}
+
+bool Jogo::estaNoIntervaloDoMapa(const int x, const int y) const {
+    return ((x > -1 && x < NRO_CASAS) && ((y > -1 && y < NRO_CASAS)));
+}
+
+int Jogo::numeroItensMapa() const{
+    int nroItens = 0;
+
+    //percorro as colunas
+    for(int i = 0; i <NRO_CASAS; i++){
+
+        //percorro as linhas
+        for(int j = 0; j <NRO_CASAS; j++){
+
+            //SE FOR ITEM
+            if(this->ehItemMapa(j,i))
+                nroItens++;
+        }
+    }
+    return nroItens;
+}
+
+bool Jogo::pegarItem(const int x, const int y){
+
+    if(estaNoIntervaloDoMapa(x,y)){
+
+        if(this->ehItemMapa(x,y)){
+            this->mapaAtual[y][x] = PAREDE;
+            return true;
+        }
+    }
+
+    return false;
+}
 
 /************ MAPA ******************/
 
 void Jogo::desenharMapaAtual(sf::RenderWindow &App){
 
     //percorro as colunas
-    for(int i = 0; i <LINHAS_Y; i++){
+    for(int i = 0; i <NRO_CASAS; i++){
 
         //percorro as linhas
-        for(int j = 0; j <LINHAS_X; j++){
+        for(int j = 0; j <NRO_CASAS; j++){
             //percorro cada posicao da matriz
 
             mapa.setTexture(this->itens[this->mapaAtual[i][j]]);
-            mapa.setPosition(j*ITEM_LARGURA, i*ITEM_ALTURA);
+            mapa.setPosition(j*TAMANHO_ITEM, i*TAMANHO_ITEM);
             //desenha o item no mapa
             App.draw(mapa);
         }
@@ -669,9 +881,9 @@ void Jogo::carregarMapaAtual(sf::RenderWindow &App, int fase){
     int x , y, tamanhoString;
 
     //limpo a matriz
-    for(int y = 0;y <LINHAS_Y; y++){
+    for(int y = 0;y <NRO_CASAS; y++){
 
-        for(int x = 0; x <LINHAS_X; x++){
+        for(int x = 0; x <NRO_CASAS; x++){
             this->mapaAtual[y][x] = -1;
         }
 
@@ -682,6 +894,18 @@ void Jogo::carregarMapaAtual(sf::RenderWindow &App, int fase){
     switch(fase){
         case 1:
             arquivo.open("bin/Release/files/fases/mapa1.txt");
+        break;
+        case 2:
+            arquivo.open("bin/Release/files/fases/mapa2.txt");
+            break;
+        case 3:
+            arquivo.open("bin/Release/files/fases/mapa3.txt");
+            break;
+        case 4:
+            arquivo.open("bin/Release/files/fases/mapa4.txt");
+            break;
+        case 5:
+            arquivo.open("bin/Release/files/fases/mapa5.txt");
             break;
         default:
             //arquivo default
@@ -694,12 +918,12 @@ void Jogo::carregarMapaAtual(sf::RenderWindow &App, int fase){
 
         y = 0;
         //enquanto houver linha no arquivo e não for maior que o tamanho máximo
-        while((getline(arquivo, linha)) && (y < LINHAS_Y)){
+        while((getline(arquivo, linha)) && (y < NRO_CASAS)){
 
             //tamanho da linha atual
             tamanhoString = linha.length();
 
-            for(x = 0; (x < LINHAS_X) && (x < tamanhoString); x++){
+            for(x = 0; (x < NRO_CASAS) && (x < tamanhoString); x++){
 
                 //obtenho o char do valor e transformo no int
                 this->mapaAtual[y][x] = linha[x]-48;

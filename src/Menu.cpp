@@ -9,7 +9,7 @@ Menu::Menu() {
     }
 
 	//se achar a imagem de fundo
-    if (this->fundoJogo.loadFromFile("bin/Release/files/images/menu/background.png")){
+    if (!this->fundoJogo.loadFromFile("bin/Release/files/images/menu/background.png")){
         std::cerr << "Error loading menu image" << std::endl;
     }
 

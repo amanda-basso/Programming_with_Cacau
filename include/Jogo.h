@@ -26,13 +26,10 @@
 #include "AnimatedSprite.h"
 #include "../src/Pilha.cpp"
 
-#define LINHAS_X 20
-#define LINHAS_Y 20
+#define NRO_CASAS 20
+#define TAMANHO_ITEM 30
 
-#define ITEM_ALTURA 30
-#define ITEM_LARGURA 30
-
-#define NUMERO_FASES 1
+#define NUMERO_FASES 5
 
 //itens
 #define CONCRETO 0
@@ -46,8 +43,8 @@
 #define OBJ4 8
 #define OBJ5 9
 
-#define POS_INICIAL_X 270
-#define POS_INICIAL_Y 285
+#define POS_INICIAL_X 30
+#define POS_INICIAL_Y 30
 
 #define SEGUIR 0
 #define HORARIO 1
@@ -57,8 +54,6 @@
 #define PEGAR 5
 #define LIMPAR 6
 #define EXECUTAR 7
-
-#define ALTURA_INICIAL 300
 
 /*
  *	Classes
@@ -105,7 +100,7 @@ class Jogo : public Telas {
         float speed;
         bool noKeyWasPressed;
 
-        int mapaAtual[LINHAS_X][LINHAS_Y];
+        int mapaAtual[NRO_CASAS][NRO_CASAS];
         int fase;
         int sentido;
         bool movimento;
@@ -121,7 +116,7 @@ class Jogo : public Telas {
         void desenharMapaAtual(sf::RenderWindow &App);
 
         //desenha todas as opções de controle
-        void funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event);
+        int funcionalidadeBotao(sf::RenderWindow &App, sf::Event &event);
         void desenharOpcoesControle(sf::RenderWindow &App);
 
         //desenha a fila que o jogador escolheu para fazer o personagem se mover
@@ -129,8 +124,14 @@ class Jogo : public Telas {
         void desenharFilaControleF1(sf::RenderWindow &App);
         void desenharFilaControleF2(sf::RenderWindow &App);
 
-
-        void desenharJogador(sf::RenderWindow &App, bool movimento);
+        int descobrirX(const float x) const;
+        int descobrirY(const float y) const;
+        bool podeSeguir(const int x, const int y) const;
+        bool ehItemMapa(const int x, const int y) const;
+        bool estaNoIntervaloDoMapa(const int x, const int y) const;
+        int numeroItensMapa() const;
+        bool pegarItem (const int x, const int y);
+        bool morre(const int x, const int y) const;
 
         //adiciona um controle
         void adicionarControle();
@@ -139,13 +140,15 @@ class Jogo : public Telas {
         void removerControle();
 
         //executa a fila de controles, verificando o caminho e movimentando o personagem
-        void executarFilaControle(sf::RenderWindow &App);
+        int executarFilaControle(sf::RenderWindow &App);
+        bool observarJogador(sf::RenderWindow &App, bool movimento);
+        void resetarJogador(sf::RenderWindow &App);
 
-        void movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha);
+        bool movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha);
         void verificarCaminho(float x, float y) const;
 
     public:
-        Jogo(int fase = 1);
+        Jogo();
         virtual int Run(sf::RenderWindow &App);
 
 };

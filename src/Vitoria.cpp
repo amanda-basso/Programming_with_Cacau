@@ -16,7 +16,7 @@ int Vitoria::Run(sf::RenderWindow &App) {
 
 	if (!Texture.loadFromFile("bin/Release/files/images/menu.png")){
 		std::cerr << "Error loading menu.png" << std::endl;
-		return (-1);
+		//return (-1);
 	}
 
 	Sprite.setTexture(Texture);
@@ -28,20 +28,11 @@ int Vitoria::Run(sf::RenderWindow &App) {
 		return (-1);
 	}
 
-    sf::Music musica;
-    if (!musica.openFromFile("bin/Release/files/musicas/menu.ogg")){
-        std::cerr << "Error loading menu.ogg" << std::endl;
-        return -1; // error
-    }
-
-      musica.setLoop(true); //para a musica ficar sempre tocando
-      musica.play(); //tocar a musica do menu
-
   //escolho tamanho e fontes dos textos do menu
 	Menu1.setFont(Font);
-	Menu1.setCharacterSize(100);
-	Menu1.setString("You win!");
-	Menu1.setPosition({180.f, 200.f });
+	Menu1.setCharacterSize(30);
+	Menu1.setString("Você ganhou!");
+	Menu1.setPosition({30.f, 200.f });
 	Menu1.setColor(sf::Color(255, 0, 0, 255));
 
 	Menu2.setFont(Font);

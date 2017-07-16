@@ -26,6 +26,7 @@
 #include "Menu.h"
 #include "Instrucao.h"
 #include "Vitoria.h"
+#include "Erro.h"
 
 #include "Lista.h"
 #include "Node.h"
@@ -74,6 +75,10 @@ int main(int argc, char** argv) {
 	//opcao 4
 	Vitoria e;
 	listaTelas.push_back(&e);
+
+	//opcao 5
+	Erro f;
+	listaTelas.push_back(&f);
 
 	//Main loop
 	while (telaAtual >= 0){

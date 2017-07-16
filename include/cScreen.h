@@ -8,6 +8,7 @@
 #define GAME 1
 #define INSTRUCAO 2
 #define VITORIA 3
+#define ERRO 4
 
 //classe pai que conterá todas as telas
 class Telas {
