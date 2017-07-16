@@ -421,10 +421,10 @@
 	<string>
 	<SFML/Graphics.hpp>
 
-1499969383 source:a:\jogo 2\src\jogo.cpp
+1500160565 source:a:\jogo 2\src\jogo.cpp
 	"Jogo.h"
 
-1499969368 a:\jogo 2\include\jogo.h
+1500153570 a:\jogo 2\include\jogo.h
 	<iostream>
 	"cScreen.h"
 	<string>
@@ -562,7 +562,7 @@
 1499939539 source:a:\jogo 2\src\lista.cpp
 	"Lista.h"
 
-1499941074 source:a:\jogo 2\src\menu.cpp
+1499974139 source:a:\jogo 2\src\menu.cpp
 	"Menu.h"
 
 1499940859 a:\jogo 2\include\menu.h

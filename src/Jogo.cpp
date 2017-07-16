@@ -5,7 +5,7 @@ Jogo::Jogo(int fase) {
 
 
     /*********** PAINEL *******************/
-    if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.jpg")){
+    if(!this->backgroundPainel.loadFromFile("bin/Release/files/images/jogo/painel.png")){
          std::cerr << "Error loading painel" << std::endl;
     }
 
@@ -14,11 +14,16 @@ Jogo::Jogo(int fase) {
 
     /*********** ITENS MAPA *******************/
     //itens do mapa
-    if (!this->itens[CONCRETO].loadFromFile("bin/Release/files/images/jogo/concreto.jpg")
-        || !this->itens[GRAMA].loadFromFile("bin/Release/files/images/jogo/grama.jpg")
+    if (!this->itens[CONCRETO].loadFromFile("bin/Release/files/images/jogo/concreto.png")
+        || !this->itens[GRAMA].loadFromFile("bin/Release/files/images/jogo/grama.png")
         || !this->itens[PEDRA].loadFromFile("bin/Release/files/images/jogo/pedra.jpg")
-        || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/agua.jpg")
-        || !this->itens[PAREDE].loadFromFile("bin/Release/files/images/jogo/parede.jpg")
+        || !this->itens[AGUA].loadFromFile("bin/Release/files/images/jogo/grama.png")
+        || !this->itens[PAREDE].loadFromFile("bin/Release/files/images/jogo/parede.png")
+        || !this->itens[OBJ1].loadFromFile("bin/Release/files/images/jogo/obj1.png")
+        || !this->itens[OBJ2].loadFromFile("bin/Release/files/images/jogo/obj2.png")
+        || !this->itens[OBJ3].loadFromFile("bin/Release/files/images/jogo/obj3.png")
+        || !this->itens[OBJ4].loadFromFile("bin/Release/files/images/jogo/obj4.png")
+        || !this->itens[OBJ5].loadFromFile("bin/Release/files/images/jogo/obj5.png")
         ){
          std::cerr << "Error loading itens" << std::endl;
     }
@@ -59,9 +64,10 @@ Jogo::Jogo(int fase) {
 
     this->currentAnimation = &walkingAnimationDown;
 
+    this->animatedSprite = AnimatedSprite(sf::seconds(0.04), true, false);
     this->animatedSprite.setPosition(270,285);
 
-    this->speed = 80.f;
+    this->speed = 1.f;
     this->noKeyWasPressed = true;
 
 
@@ -72,9 +78,9 @@ Jogo::Jogo(int fase) {
         ||!this->controle[ANTIHORARIO].loadFromFile("bin/Release/files/images/jogo/antihorario2.png")
         ||!this->controle[FUNCAO1].loadFromFile("bin/Release/files/images/jogo/f2.png")
         ||!this->controle[FUNCAO2].loadFromFile("bin/Release/files/images/jogo/g2.png")
-        ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar2.jpg")
-        ||!this->controle[LIMPAR].loadFromFile("bin/Release/files/images/jogo/limpar.jpg")
-        ||!this->controle[EXECUTAR].loadFromFile("bin/Release/files/images/jogo/executar.jpg")
+        ||!this->controle[PEGAR].loadFromFile("bin/Release/files/images/jogo/pegar2.png")
+        ||!this->controle[LIMPAR].loadFromFile("bin/Release/files/images/jogo/limpar.png")
+        ||!this->controle[EXECUTAR].loadFromFile("bin/Release/files/images/jogo/executar.png")
         ){
         std::cout << "Can't find the ITEM" << std::endl;
     }
@@ -454,120 +460,87 @@ void Jogo::desenharJogador(sf::RenderWindow &App, bool movimento){
     }
 }
 
-void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> pilha){
+void Jogo::movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha){
 
     Pilha<int> paux;
-    bool movimento = false;
+
     int aux = -1;
     int aux2 = -1;
-    sf::Time frameTime = sf::seconds(1);
-    sf::Vector2f movement(0.f, 0.f);
 
 	while (!pilha.EstaVazia()) {
         pilha.Retira(aux);
-		std::cout << aux << " " << this->sentido << std::endl;
 		paux.Insere(aux);
-		//pauxaux.Insere(aux);
+		cout << "Nro: " <<  pilha.getTamanho()+1 << " Item" << aux << endl;
 	}
+	cout << " --- " << endl;
 
-	/* agora que paux possui pilha invertida, reinserimos os valores em pilha na ordem correta e aproveitamos para desenhar o objeto! */
-	while (!paux.EstaVazia()) {
-	    //proximo instrucao, paro de executar
 
-        animatedSprite.stop();
-		paux.Retira(aux2);
-        switch(aux2){
-            case SEGUIR:
-                    switch(this->sentido){
-                        //pra cima
-                        case 0:
-                            movement.y -= ITEM_ALTURA;
-                            break;
-                        //esquerda
-                        case 1:
-                            movement.x -= ITEM_LARGURA;
-                            break;
-                        //pra baixo
-                        case 2:
-                            movement.y += ITEM_ALTURA;
-                            break;
-                        //pra direita
-                        case 3:
-                            movement.x += ITEM_LARGURA;
-                            break;
-                    }
+    // set up AnimatedSprite
+    this->animatedSprite.setPosition(0,0);
 
-                    movimento = true;
-                break;
+    sf::Clock frameClock;
 
-            case HORARIO:
-                this->sentido++;
+    while (true) {
 
-                switch(sentido % 4){
-                    //pra cima
-                    case 0:
-                        currentAnimation = &walkingAnimationUp;
-                        break;
-                    //esquerda
-                    case 1:
-                        currentAnimation = &walkingAnimationLeft;
-                        break;
-                    //pra baixo
-                    case 2:
-                        currentAnimation = &walkingAnimationDown;
-                        break;
-                    //pra direita
-                    case 3:
-                        currentAnimation = &walkingAnimationRight;
-                        break;
-                }
-                movimento = true;
-                break;
-
-            case ANTIHORARIO:
-
-                this->sentido = (sentido < 3) ? sentido++ :0;
-
-                switch(sentido){
-                    //pra cima
-                    case 0:
-                        currentAnimation = &walkingAnimationUp;
-                        break;
-                    //esquerda
-                    case 1:
-                        currentAnimation = &walkingAnimationLeft;
-                        break;
-                    //pra baixo
-                    case 2:
-                        currentAnimation = &walkingAnimationDown;
-                        break;
-                    //pra direita
-                    case 3:
-                        currentAnimation = &walkingAnimationRight;
-                        break;
-                }
-                break;
-
-            case FUNCAO1:
-                this->movimentarPersonagem(App, this->pilhafuncao1);
-                break;
-
-            case FUNCAO2:
-                this->movimentarPersonagem(App, this->pilhafuncao2);
-                break;
-
-            case PEGAR:
-                break;
+        // if a key was pressed set the correct animation and move correctly
+        sf::Vector2f movement(0.f, 0.f);
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+            currentAnimation = &walkingAnimationUp;
+            movement.y -= this->speed;
+            noKeyWasPressed = false;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+            currentAnimation = &walkingAnimationDown;
+            movement.y += this->speed;
+            noKeyWasPressed = false;
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+            currentAnimation = &walkingAnimationLeft;
+            movement.x -= this->speed;
+            noKeyWasPressed = false;
+        }
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+            currentAnimation = &walkingAnimationRight;
+            movement.x += this->speed;
+            noKeyWasPressed = false;
         }
 
-        pilha.Insere(aux);
 
-        animatedSprite.play(*currentAnimation);
-        animatedSprite.move(movement);
-        animatedSprite.update(frameTime);
-        App.draw(animatedSprite);
+        // if no key was pressed stop the animation
+        if (noKeyWasPressed) {
+            sf::Time frameTime = frameClock.restart();
+
+            this->animatedSprite.play(*currentAnimation);
+            this->animatedSprite.stop();
+            this->animatedSprite.update(frameTime);
+
+            // draw
+            App.clear();
+            App.draw(this->animatedSprite);
+            App.display();
+
+        }else{
+
+            for(int i = 0; i < 30;i++){
+                Sleep(100);
+                this->animatedSprite.play(*currentAnimation);
+
+                sf::Time frameTime = frameClock.restart();
+
+                this->animatedSprite.move(movement);
+                this->animatedSprite.update(frameTime);
+
+                cout <<"("<<this->animatedSprite.getPosition().x << ", "<<this->animatedSprite.getPosition().y << ")"<< endl;
+
+                // draw
+                App.clear();
+                App.draw(this->animatedSprite);
+                App.display();
+            }
+        }
+
+        noKeyWasPressed = true;
     }
-
 }
 
 void Jogo::desenharJogo(sf::RenderWindow &App){

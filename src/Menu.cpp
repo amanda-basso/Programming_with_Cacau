@@ -49,7 +49,7 @@ int Menu::Run(sf::RenderWindow &App) {
     int opt = 0;
 
     this->sound.setLoop(true); /* sound loop */
-    //this->sound.play(); /* play music */
+    this->sound.play(); /* play music */
 
 	while (true) {
 

@@ -40,6 +40,11 @@
 #define PEDRA 2
 #define AGUA 3
 #define PAREDE 4
+#define OBJ1 5
+#define OBJ2 6
+#define OBJ3 7
+#define OBJ4 8
+#define OBJ5 9
 
 #define SEGUIR 0
 #define HORARIO 1
@@ -132,7 +137,7 @@ class Jogo : public Telas {
         //executa a fila de controles, verificando o caminho e movimentando o personagem
         void executarFilaControle(sf::RenderWindow &App);
 
-        void movimentarPersonagem(sf::RenderWindow &App, Pilha<int> pilha);
+        void movimentarPersonagem(sf::RenderWindow &App, Pilha<int> &pilha);
         void verificarCaminho(float x, float y) const;
 
     public:
